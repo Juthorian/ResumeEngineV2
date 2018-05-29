@@ -4,14 +4,10 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
-using System.Diagnostics;
-using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Net;
 using System.Security;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace ResumeEngineV2
@@ -21,24 +17,29 @@ namespace ResumeEngineV2
         public Form1()
         {
             InitializeComponent();
+            //Overlays progress bar ontop of rich text area where results are displayed
             progressBar1.BringToFront();
-            progressBar1.Minimum = 0;
-            progressBar1.Maximum = 100;
         }
 
         private void button1_Click(object sender, EventArgs e)
         {
+            //User must enter something for search to work
             if (textBox1.Text == "")
             {
-                MessageBox.Show("Please enter a valid keyword!");
+                MessageBox.Show("Please enter a valid keyword!", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
             }
             else
             {
                 progressBar1.Visible = true;
+
+                //Fixes weird bug where label is cut off
+                label2.Text = "";
                 label2.Text = "Results:";
+
                 richTextBox1.Text = "";
                 button1.Enabled = false;
                 textBox1.Enabled = false;
+
                 string targetSiteURL = @"https://aecon1.sharepoint.com/sites/bd/resume/";
 
                 var login = "JBraham@aecon.com";
@@ -60,7 +61,7 @@ namespace ResumeEngineV2
                 ctx.Load(web);
                 ctx.ExecuteQuery();
 
-                //Gets all files under Documents
+                //Gets all folders under Documents
                 var list = web.Lists.GetByTitle("Documents");
                 ctx.Load(list);
                 ctx.Load(list.RootFolder);
@@ -71,10 +72,13 @@ namespace ResumeEngineV2
 
                 List<string> names = new List<string>();
 
+                //Loops through each folder
                 foreach (Folder f in fcol)
                 {
+                    //If folder is text
                     if (f.Name == "Text")
                     {
+                        //Get all files under text folder
                         ctx.Load(f.Files);
                         ctx.ExecuteQuery();
                         var listItems = f.Files;
@@ -102,17 +106,20 @@ namespace ResumeEngineV2
             List<string> names = (System.Collections.Generic.List<string>)arguments[4];
             Web web = (Web)arguments[1];
             string postData = "[";
+            //Loops through each file
             foreach (var item in (FileCollection)arguments[0])
             {
                 count++;
                 string fileName = item.Name;
                 names.Add(fileName);
                 var filePath = web.ServerRelativeUrl + "/Shared%20Documents/Text/" + fileName;
+                //Gets file from SharePoint
                 FileInformation fileInformation = Microsoft.SharePoint.Client.File.OpenBinaryDirect((ClientContext)arguments[2], filePath);
 
                 string ext = System.IO.Path.GetExtension(fileName);
-
                 string convText = "";
+
+                //Reads file into string
                 using (StreamReader reader = new StreamReader(fileInformation.Stream))
                 {
                     convText = reader.ReadToEnd();
@@ -145,6 +152,7 @@ namespace ResumeEngineV2
                     else if (convText[i] != '\n' && convText[i] != '\r')
                     {
                         isNewLine = false;
+                        //If '"' is already escaped ignore
                         if (convText[i] == '"' && convText[i - 1] != '\\')
                         {
                             //Adds a single '\' before the '"'
@@ -164,7 +172,7 @@ namespace ResumeEngineV2
                 //Build JSON request string each loop
                 postData += "[{\"term\": \"" + (string)arguments[3] + "\"},{\"text\": \"" + newConvText + "\"}],";
 
-                //Update progress bar
+                //Send new progress bar value to backgroundWorker1_ProgressChanged as fields cannot be updated in backgroundWorker thread
                 double progressPercent = ((double)count / totalCount) * 100;
                 progressPercent = Math.Round(progressPercent, 0);
                 backgroundWorker1.ReportProgress((int)progressPercent);
@@ -180,6 +188,7 @@ namespace ResumeEngineV2
             webRequest.Method = "POST";
             webRequest.Headers["api-key"] = "bb355cc0-5873-11e8-9172-3ff24e827f76";
             webRequest.ContentType = "application/json";
+            //Send request with postData string as the body
             using (var streamWriter = new StreamWriter(webRequest.GetRequestStream()))
             {
                 streamWriter.Write(postData);
@@ -205,7 +214,7 @@ namespace ResumeEngineV2
             //Formats return string as JSON
             dynamic jsonObj = JsonConvert.DeserializeObject<dynamic>(result);
 
-            //Calculates match percent as well as display results to user
+            //Calculates match percent for each return object which correlates to each resume
             List<KeyValuePair<double, int>> percentName = new List<KeyValuePair<double, int>>();
             for (int i = 0; i < jsonObj.Count; i++)
             {
@@ -225,11 +234,14 @@ namespace ResumeEngineV2
             }
 
             string responseFull = "";
+            //Generates response to populate rich text area
             for (int i = 0; i < percentName.Count(); i++)
             {
                 responseFull += (i + 1 + ". \"" + names[percentName[i].Value] + "\" with " + percentName[i].Key + "%\n");
             }
             
+            //Sends finished data to e.Result so when backgroundWorker1 is completed it can access the data and correctly update the fields
+            //This has to be done as you cannot update the fields inside backgroundWorker thread
             List<object> returnArgs = new List<object>();
             returnArgs.Add("Results for \"" + (string)arguments[3] + "\":");
             returnArgs.Add(responseFull);
@@ -238,11 +250,13 @@ namespace ResumeEngineV2
 
         void backgroundWorker1_ProgressChanged(object sender, ProgressChangedEventArgs e)
         {
+            //Update progress bar
             progressBar1.Value = e.ProgressPercentage;
         }
 
         void backgroundWorker1_Completed(object sender, RunWorkerCompletedEventArgs e)
         {
+            //Update fields
             List<object> arguments = e.Result as List<object>;
             label2.Text = (string)arguments[0];
             richTextBox1.Text = (string)arguments[1];

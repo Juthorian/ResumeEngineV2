@@ -111,7 +111,7 @@ namespace ResumeEngineV2
             {
                 count++;
                 string fileName = item.Name;
-                names.Add(fileName);
+                names.Add(fileName.Replace(".txt",""));
                 var filePath = web.ServerRelativeUrl + "/Shared%20Documents/Text/" + fileName;
                 //Gets file from SharePoint
                 FileInformation fileInformation = Microsoft.SharePoint.Client.File.OpenBinaryDirect((ClientContext)arguments[2], filePath);

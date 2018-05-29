@@ -22,6 +22,8 @@ namespace ResumeEngineV2
         {
             InitializeComponent();
             progressBar1.BringToFront();
+            progressBar1.Minimum = 0;
+            progressBar1.Maximum = 100;
         }
 
         private void button1_Click(object sender, EventArgs e)
@@ -36,6 +38,7 @@ namespace ResumeEngineV2
                 label2.Text = "Results:";
                 richTextBox1.Text = "";
                 button1.Enabled = false;
+                textBox1.Enabled = false;
                 string targetSiteURL = @"https://aecon1.sharepoint.com/sites/bd/resume/";
 
                 var login = "JBraham@aecon.com";
@@ -160,32 +163,17 @@ namespace ResumeEngineV2
 
                 //Build JSON request string each loop
                 postData += "[{\"term\": \"" + (string)arguments[3] + "\"},{\"text\": \"" + newConvText + "\"}],";
-                backgroundWorker1.ReportProgress(count);
+
+                //Update progress bar
+                double progressPercent = ((double)count / totalCount) * 100;
+                progressPercent = Math.Round(progressPercent, 0);
+                backgroundWorker1.ReportProgress((int)progressPercent);
             }
-            List<object> returnArgs = new List<object>();
-            returnArgs.Add(postData);
-            returnArgs.Add((string)arguments[3]);
-            returnArgs.Add(names);
-            e.Result = returnArgs;
-        }
 
-        void backgroundWorker1_ProgressChanged(object sender, ProgressChangedEventArgs e)
-        {
-            progressBar1.Value = e.ProgressPercentage;
-        }
-
-        void backgroundWorker1_Completed(object sender, RunWorkerCompletedEventArgs e)
-        {
-            List<object> arguments = e.Result as List<object>;
-            string postData = (string)arguments[0];
-            string term = (string)arguments[1];
-            List<string> names = (System.Collections.Generic.List<string>)arguments[2];
             //Removes trailing ',' and replaces with ']' to close JSON object
             postData = postData.Remove(postData.Length - 1, 1) + "]";
 
             //System.IO.File.WriteAllText(@"C:\\Users\\brahamj\\Downloads\\jsonPost.txt", postData);
-
-            //Console.WriteLine("Connecting to cortical.io!");
 
             //API Request to cortical.io to compare text taken from SharePoint with a keyword the user provided
             WebRequest webRequest = WebRequest.Create("http://api.cortical.io:80/rest/compare/bulk?retina_name=en_associative");
@@ -234,19 +222,32 @@ namespace ResumeEngineV2
                 percentName.Add(new KeyValuePair<double, int>(matchPercent, i));
 
                 percentName = percentName.OrderByDescending(x => x.Key).ToList();
-
-                //Console.WriteLine("\nResults from Cortical.io for \"" + names[i] + "\" using keyword: " + term + "\n" + "Your keyword matched the text " + matchPercent + "%");
             }
 
-            //Console.WriteLine("\n\nOrdered results for \"" + term + "\":\n");
-            label2.Text = "results for \"" + term + "\":";
             string responseFull = "";
             for (int i = 0; i < percentName.Count(); i++)
             {
                 responseFull += (i + 1 + ". \"" + names[percentName[i].Value] + "\" with " + percentName[i].Key + "%\n");
             }
-            richTextBox1.Text = responseFull;
+            
+            List<object> returnArgs = new List<object>();
+            returnArgs.Add("Results for \"" + (string)arguments[3] + "\":");
+            returnArgs.Add(responseFull);
+            e.Result = returnArgs;
+        }
+
+        void backgroundWorker1_ProgressChanged(object sender, ProgressChangedEventArgs e)
+        {
+            progressBar1.Value = e.ProgressPercentage;
+        }
+
+        void backgroundWorker1_Completed(object sender, RunWorkerCompletedEventArgs e)
+        {
+            List<object> arguments = e.Result as List<object>;
+            label2.Text = (string)arguments[0];
+            richTextBox1.Text = (string)arguments[1];
             button1.Enabled = true;
+            textBox1.Enabled = true;
             progressBar1.Value = 0;
             progressBar1.Visible = false;
         }

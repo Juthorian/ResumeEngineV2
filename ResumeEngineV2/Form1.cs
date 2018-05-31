@@ -9,6 +9,7 @@ using System.Linq;
 using System.Net;
 using System.Security;
 using System.Windows.Forms;
+using System.Xml;
 
 namespace ResumeEngineV2
 {
@@ -42,8 +43,14 @@ namespace ResumeEngineV2
 
                 string targetSiteURL = @"https://aecon1.sharepoint.com/sites/bd/resume/";
 
-                var login = "JBraham@aecon.com";
-                var password = "Winter@99";
+                //Read credentials from creds.xml
+                XmlDocument doc = new XmlDocument();
+                doc.Load("creds.xml");
+                XmlNode node = doc.DocumentElement.SelectSingleNode("/credentials/username");
+                XmlNode node2 = doc.DocumentElement.SelectSingleNode("/credentials/password");
+
+                var login = node.InnerText;
+                var password = node2.InnerText;
 
                 string term = textBox1.Text;
 

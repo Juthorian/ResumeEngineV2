@@ -20,6 +20,47 @@ namespace ResumeEngineV2
             InitializeComponent();
             //Overlays progress bar ontop of rich text area where results are displayed
             progressBar1.BringToFront();
+
+            XmlDocument doc = new XmlDocument();
+            doc.Load("creds.xml");
+
+            if (doc.DocumentElement.SelectSingleNode("/credentials/password").InnerText == "***")
+            {
+                label1.Visible = false;
+                textBox1.Visible = false;
+                button1.Visible = false;
+                label2.Visible = false;
+                richTextBox1.Visible = false;
+                progressBar1.Visible = false;
+            }
+            else
+            {
+                label3.Visible = false;
+                textBox2.Visible = false;
+                textBox3.Visible = false;
+                button2.Visible = false;
+            }
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            XmlDocument doc = new XmlDocument();
+            doc.Load("creds.xml");
+            doc.DocumentElement.SelectSingleNode("/credentials/username").InnerText = textBox2.Text;
+            doc.DocumentElement.SelectSingleNode("/credentials/password").InnerText = textBox3.Text;
+            doc.Save("../../creds.xml");
+
+            label3.Visible = false;
+            textBox2.Visible = false;
+            textBox3.Visible = false;
+            button2.Visible = false;
+
+            label1.Visible = true;
+            textBox1.Visible = true;
+            button1.Visible = true;
+            label2.Visible = true;
+            richTextBox1.Visible = true;
+            progressBar1.Visible = true;
         }
 
         private void button1_Click(object sender, EventArgs e)
@@ -46,11 +87,9 @@ namespace ResumeEngineV2
                 //Read credentials from creds.xml
                 XmlDocument doc = new XmlDocument();
                 doc.Load("creds.xml");
-                XmlNode node = doc.DocumentElement.SelectSingleNode("/credentials/username");
-                XmlNode node2 = doc.DocumentElement.SelectSingleNode("/credentials/password");
 
-                var login = node.InnerText;
-                var password = node2.InnerText;
+                var login = doc.DocumentElement.SelectSingleNode("/credentials/username").InnerText;
+                var password = doc.DocumentElement.SelectSingleNode("/credentials/password").InnerText;
 
                 string term = textBox1.Text;
 

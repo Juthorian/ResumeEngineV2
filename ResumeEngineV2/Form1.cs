@@ -22,6 +22,7 @@ namespace ResumeEngineV2
             //Overlays progress bar ontop of rich text area where results are displayed
             progressBar1.BringToFront();
 
+            //Checks to see if creds.xml exists, if not creates file
             if (System.IO.File.Exists("creds.xml") == false)
             {
                 using (FileStream fs = System.IO.File.Create("creds.xml"))
@@ -30,11 +31,14 @@ namespace ResumeEngineV2
                     fs.Write(info, 0, info.Length);
                 }
             }
+            //Loads in xml data in creds.xml
             XmlDocument doc = new XmlDocument();
             doc.Load("creds.xml");
 
+            //Checks to see if data is '***' rather than actual data which is the case when the user logouts and does not log back in, or if the file was just created
             if (doc.DocumentElement.SelectSingleNode("/credentials/password").InnerText == "***")
             {
+                //Only display login stuff
                 lblEnterKeyword.Visible = false;
                 txtBoxKeyword.Visible = false;
                 btnKeywordSubmit.Visible = false;
@@ -45,6 +49,7 @@ namespace ResumeEngineV2
             }
             else
             {
+                //Do not display login stuff
                 lblLogin.Visible = false;
                 textBoxUsername.Visible = false;
                 textBoxPassword.Visible = false;
@@ -57,12 +62,14 @@ namespace ResumeEngineV2
 
         private void btnLoginSubmit_Click(object sender, EventArgs e)
         {
+            //Load creds.xml and add user login credentials
             XmlDocument doc = new XmlDocument();
             doc.Load("creds.xml");
             doc.DocumentElement.SelectSingleNode("/credentials/username").InnerText = textBoxUsername.Text;
             doc.DocumentElement.SelectSingleNode("/credentials/password").InnerText = textBoxPassword.Text;
             doc.Save("creds.xml");
 
+            //Hide login stuff
             lblLogin.Visible = false;
             textBoxUsername.Visible = false;
             textBoxPassword.Visible = false;
@@ -83,18 +90,21 @@ namespace ResumeEngineV2
 
         private void btnLogout_Click(object sender, EventArgs e)
         {
+            //Load xml and set credentials to ***
             XmlDocument doc = new XmlDocument();
             doc.Load("creds.xml");
             doc.DocumentElement.SelectSingleNode("/credentials/username").InnerText = "***";
             doc.DocumentElement.SelectSingleNode("/credentials/password").InnerText = "***";
             doc.Save("creds.xml");
 
+            //Whipe data stored in fields
             this.Text = "Resume Search Engine";
             txtBoxKeyword.Text = "";
             textBoxUsername.Text = "";
             textBoxPassword.Text = "";
             lblResults.Text = "Results:";
 
+            //Only show login stuff
             lblLogin.Visible = true;
             textBoxUsername.Visible = true;
             textBoxPassword.Visible = true;
@@ -125,7 +135,7 @@ namespace ResumeEngineV2
                 //Fixes weird bug where label is cut off
                 lblResults.Text = "";
                 lblResults.Text = "Results:";
-
+          
                 richTextBoxResults.Text = "";
                 btnKeywordSubmit.Enabled = false;
                 txtBoxKeyword.Enabled = false;
@@ -180,7 +190,7 @@ namespace ResumeEngineV2
                 //Loops through each folder
                 foreach (Folder f in fcol)
                 {
-                    //If folder is text
+                    //If folder is named Text
                     if (f.Name == "Text")
                     {
                         //Get all files under text folder
@@ -355,6 +365,7 @@ namespace ResumeEngineV2
             List<object> returnArgs = new List<object>();
             returnArgs.Add("Results for \"" + (string)arguments[3] + "\":");
             returnArgs.Add(responseFull);
+            returnArgs.Add(false);
             e.Result = returnArgs;
         }
 
@@ -368,6 +379,7 @@ namespace ResumeEngineV2
         {
             //Update fields
             List<object> arguments = e.Result as List<object>;
+            //Argument[2] will only be true if system could not connect to cortical.io service which in that case no results are available
             if ((Boolean)arguments[2] == false)
             {
                 lblResults.Text = (string)arguments[0];

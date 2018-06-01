@@ -8,6 +8,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Security;
+using System.Text;
 using System.Windows.Forms;
 using System.Xml;
 
@@ -21,6 +22,14 @@ namespace ResumeEngineV2
             //Overlays progress bar ontop of rich text area where results are displayed
             progressBar1.BringToFront();
 
+            if (System.IO.File.Exists("creds.xml") == false)
+            {
+                using (FileStream fs = System.IO.File.Create("creds.xml"))
+                {
+                    Byte[] info = new UTF8Encoding(true).GetBytes("<?xml version=\"1.0\" encoding=\"utf-8\"?>" + Environment.NewLine + "<credentials>" + Environment.NewLine + "<username>***</username>" + Environment.NewLine + "<password>***</password>" + Environment.NewLine + "</credentials>");
+                    fs.Write(info, 0, info.Length);
+                }
+            }
             XmlDocument doc = new XmlDocument();
             doc.Load("creds.xml");
 
@@ -48,7 +57,7 @@ namespace ResumeEngineV2
             doc.Load("creds.xml");
             doc.DocumentElement.SelectSingleNode("/credentials/username").InnerText = textBox2.Text;
             doc.DocumentElement.SelectSingleNode("/credentials/password").InnerText = textBox3.Text;
-            doc.Save("../../creds.xml");
+            doc.Save("creds.xml");
 
             label3.Visible = false;
             textBox2.Visible = false;

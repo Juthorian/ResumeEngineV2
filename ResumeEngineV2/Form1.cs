@@ -35,47 +35,86 @@ namespace ResumeEngineV2
 
             if (doc.DocumentElement.SelectSingleNode("/credentials/password").InnerText == "***")
             {
-                label1.Visible = false;
-                textBox1.Visible = false;
-                button1.Visible = false;
-                label2.Visible = false;
-                richTextBox1.Visible = false;
+                lblEnterKeyword.Visible = false;
+                txtBoxKeyword.Visible = false;
+                btnKeywordSubmit.Visible = false;
+                lblResults.Visible = false;
+                richTextBoxResults.Visible = false;
                 progressBar1.Visible = false;
+                btnLogout.Visible = false;
             }
             else
             {
-                label3.Visible = false;
-                textBox2.Visible = false;
-                textBox3.Visible = false;
-                button2.Visible = false;
+                lblLogin.Visible = false;
+                textBoxUsername.Visible = false;
+                textBoxPassword.Visible = false;
+                lblUsername.Visible = false;
+                lblPassword.Visible = false;
+                btnLoginSubmit.Visible = false;
+                this.Text = "Resume Search Engine - Logged in as " + doc.DocumentElement.SelectSingleNode("/credentials/username").InnerText;
             }
         }
 
-        private void button2_Click(object sender, EventArgs e)
+        private void btnLoginSubmit_Click(object sender, EventArgs e)
         {
             XmlDocument doc = new XmlDocument();
             doc.Load("creds.xml");
-            doc.DocumentElement.SelectSingleNode("/credentials/username").InnerText = textBox2.Text;
-            doc.DocumentElement.SelectSingleNode("/credentials/password").InnerText = textBox3.Text;
+            doc.DocumentElement.SelectSingleNode("/credentials/username").InnerText = textBoxUsername.Text;
+            doc.DocumentElement.SelectSingleNode("/credentials/password").InnerText = textBoxPassword.Text;
             doc.Save("creds.xml");
 
-            label3.Visible = false;
-            textBox2.Visible = false;
-            textBox3.Visible = false;
-            button2.Visible = false;
+            lblLogin.Visible = false;
+            textBoxUsername.Visible = false;
+            textBoxPassword.Visible = false;
+            lblUsername.Visible = false;
+            lblPassword.Visible = false;
+            btnLoginSubmit.Visible = false;
 
-            label1.Visible = true;
-            textBox1.Visible = true;
-            button1.Visible = true;
-            label2.Visible = true;
-            richTextBox1.Visible = true;
+            lblEnterKeyword.Visible = true;
+            txtBoxKeyword.Visible = true;
+            btnKeywordSubmit.Visible = true;
+            lblResults.Visible = true;
+            richTextBoxResults.Visible = true;
             progressBar1.Visible = true;
+            btnLogout.Visible = true;
+
+            this.Text = "Resume Search Engine - Logged in as " + textBoxUsername.Text;
         }
 
-        private void button1_Click(object sender, EventArgs e)
+        private void btnLogout_Click(object sender, EventArgs e)
+        {
+            XmlDocument doc = new XmlDocument();
+            doc.Load("creds.xml");
+            doc.DocumentElement.SelectSingleNode("/credentials/username").InnerText = "***";
+            doc.DocumentElement.SelectSingleNode("/credentials/password").InnerText = "***";
+            doc.Save("creds.xml");
+
+            this.Text = "Resume Search Engine";
+            txtBoxKeyword.Text = "";
+            textBoxUsername.Text = "";
+            textBoxPassword.Text = "";
+            lblResults.Text = "Results:";
+
+            lblLogin.Visible = true;
+            textBoxUsername.Visible = true;
+            textBoxPassword.Visible = true;
+            lblUsername.Visible = true;
+            lblPassword.Visible = true;
+            btnLoginSubmit.Visible = true;
+
+            lblEnterKeyword.Visible = false;
+            txtBoxKeyword.Visible = false;
+            btnKeywordSubmit.Visible = false;
+            lblResults.Visible = false;
+            richTextBoxResults.Visible = false;
+            progressBar1.Visible = false;
+            btnLogout.Visible = false;
+        }
+
+        private void btnKeywordSubmit_Click(object sender, EventArgs e)
         {
             //User must enter something for search to work
-            if (textBox1.Text == "")
+            if (txtBoxKeyword.Text == "")
             {
                 MessageBox.Show("Please enter a valid keyword!", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
             }
@@ -84,12 +123,12 @@ namespace ResumeEngineV2
                 progressBar1.Visible = true;
 
                 //Fixes weird bug where label is cut off
-                label2.Text = "";
-                label2.Text = "Results:";
+                lblResults.Text = "";
+                lblResults.Text = "Results:";
 
-                richTextBox1.Text = "";
-                button1.Enabled = false;
-                textBox1.Enabled = false;
+                richTextBoxResults.Text = "";
+                btnKeywordSubmit.Enabled = false;
+                txtBoxKeyword.Enabled = false;
 
                 string targetSiteURL = @"https://aecon1.sharepoint.com/sites/bd/resume/";
 
@@ -100,7 +139,7 @@ namespace ResumeEngineV2
                 var login = doc.DocumentElement.SelectSingleNode("/credentials/username").InnerText;
                 var password = doc.DocumentElement.SelectSingleNode("/credentials/password").InnerText;
 
-                string term = textBox1.Text;
+                string term = txtBoxKeyword.Text;
 
                 var securePassword = new SecureString();
 
@@ -114,7 +153,18 @@ namespace ResumeEngineV2
                 ctx.Credentials = onlineCredentials;
                 var web = ctx.Web;
                 ctx.Load(web);
-                ctx.ExecuteQuery();
+                try
+                {
+                    ctx.ExecuteQuery();
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Failed to connect to SharePoint! Error:\n\n" + ex.Message, "Error!", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                    btnKeywordSubmit.Enabled = true;
+                    txtBoxKeyword.Enabled = true;
+                    progressBar1.Visible = true;
+                    return;
+                }
 
                 //Gets all folders under Documents
                 var list = web.Lists.GetByTitle("Documents");
@@ -262,8 +312,13 @@ namespace ResumeEngineV2
             }
             catch (Exception ex)
             {
-                MessageBox.Show("\nCannot connect to cortical.io API. Aborting!\nError: " + ex);
-                Application.Exit();
+                MessageBox.Show("\nCannot connect to cortical.io API. Aborting!\n\nError: " + ex.Message);
+                List<object> newArgs = new List<object>();
+                newArgs.Add("Results:");
+                newArgs.Add("");
+                newArgs.Add(true);
+                e.Result = newArgs;
+                return;
             }
 
             //Formats return string as JSON
@@ -313,10 +368,13 @@ namespace ResumeEngineV2
         {
             //Update fields
             List<object> arguments = e.Result as List<object>;
-            label2.Text = (string)arguments[0];
-            richTextBox1.Text = (string)arguments[1];
-            button1.Enabled = true;
-            textBox1.Enabled = true;
+            if ((Boolean)arguments[2] == false)
+            {
+                lblResults.Text = (string)arguments[0];
+                richTextBoxResults.Text = (string)arguments[1];
+            }
+            btnKeywordSubmit.Enabled = true;
+            txtBoxKeyword.Enabled = true;
             progressBar1.Value = 0;
             progressBar1.Visible = false;
         }

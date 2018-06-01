@@ -62,30 +62,56 @@ namespace ResumeEngineV2
 
         private void btnLoginSubmit_Click(object sender, EventArgs e)
         {
-            //Load creds.xml and add user login credentials
-            XmlDocument doc = new XmlDocument();
-            doc.Load("creds.xml");
-            doc.DocumentElement.SelectSingleNode("/credentials/username").InnerText = textBoxUsername.Text;
-            doc.DocumentElement.SelectSingleNode("/credentials/password").InnerText = textBoxPassword.Text;
-            doc.Save("creds.xml");
+            //Verify login credentials
+            string targetSiteURL = @"https://aecon1.sharepoint.com/sites/bd/resume/";
 
-            //Hide login stuff
-            lblLogin.Visible = false;
-            textBoxUsername.Visible = false;
-            textBoxPassword.Visible = false;
-            lblUsername.Visible = false;
-            lblPassword.Visible = false;
-            btnLoginSubmit.Visible = false;
+            var login = textBoxUsername.Text;
+            var password = textBoxPassword.Text;
 
-            lblEnterKeyword.Visible = true;
-            txtBoxKeyword.Visible = true;
-            btnKeywordSubmit.Visible = true;
-            lblResults.Visible = true;
-            richTextBoxResults.Visible = true;
-            progressBar1.Visible = true;
-            btnLogout.Visible = true;
+            var securePassword = new SecureString();
 
-            this.Text = "Resume Search Engine - Logged in as " + textBoxUsername.Text;
+            foreach (char c in password)
+            {
+                securePassword.AppendChar(c);
+            }
+            try
+            {
+                SharePointOnlineCredentials onlineCredentials = new SharePointOnlineCredentials(login, securePassword);
+                ClientContext ctx = new ClientContext(targetSiteURL);
+                ctx.Credentials = onlineCredentials;
+                var web = ctx.Web;
+                ctx.Load(web);
+                ctx.ExecuteQuery();
+
+                //Load creds.xml and add user login credentials
+                XmlDocument doc = new XmlDocument();
+                doc.Load("creds.xml");
+                doc.DocumentElement.SelectSingleNode("/credentials/username").InnerText = textBoxUsername.Text;
+                doc.DocumentElement.SelectSingleNode("/credentials/password").InnerText = textBoxPassword.Text;
+                doc.Save("creds.xml");
+
+                //Hide login stuff
+                lblLogin.Visible = false;
+                textBoxUsername.Visible = false;
+                textBoxPassword.Visible = false;
+                lblUsername.Visible = false;
+                lblPassword.Visible = false;
+                btnLoginSubmit.Visible = false;
+
+                lblEnterKeyword.Visible = true;
+                txtBoxKeyword.Visible = true;
+                btnKeywordSubmit.Visible = true;
+                lblResults.Visible = true;
+                richTextBoxResults.Visible = true;
+                progressBar1.Visible = true;
+                btnLogout.Visible = true;
+
+                this.Text = "Resume Search Engine - Logged in as " + textBoxUsername.Text;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Failed to authenticate username or password! Please try again.", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+            }
         }
 
         private void btnLogout_Click(object sender, EventArgs e)
@@ -139,6 +165,7 @@ namespace ResumeEngineV2
                 richTextBoxResults.Text = "";
                 btnKeywordSubmit.Enabled = false;
                 txtBoxKeyword.Enabled = false;
+                btnLogout.Enabled = false;
 
                 string targetSiteURL = @"https://aecon1.sharepoint.com/sites/bd/resume/";
 
@@ -163,18 +190,7 @@ namespace ResumeEngineV2
                 ctx.Credentials = onlineCredentials;
                 var web = ctx.Web;
                 ctx.Load(web);
-                try
-                {
-                    ctx.ExecuteQuery();
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show("Failed to connect to SharePoint! Error:\n\n" + ex.Message, "Error!", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
-                    btnKeywordSubmit.Enabled = true;
-                    txtBoxKeyword.Enabled = true;
-                    progressBar1.Visible = true;
-                    return;
-                }
+                ctx.ExecuteQuery();
 
                 //Gets all folders under Documents
                 var list = web.Lists.GetByTitle("Documents");
@@ -384,11 +400,16 @@ namespace ResumeEngineV2
             {
                 lblResults.Text = (string)arguments[0];
                 richTextBoxResults.Text = (string)arguments[1];
+                progressBar1.Visible = false;
+            }
+            else
+            {
+                progressBar1.Visible = true;
             }
             btnKeywordSubmit.Enabled = true;
             txtBoxKeyword.Enabled = true;
+            btnLogout.Enabled = true;
             progressBar1.Value = 0;
-            progressBar1.Visible = false;
         }
     }
 }

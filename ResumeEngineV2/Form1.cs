@@ -8,6 +8,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Security;
+using System.Security.Cryptography;
 using System.Text;
 using System.Windows.Forms;
 using System.Xml;
@@ -30,10 +31,13 @@ namespace ResumeEngineV2
                     Byte[] info = new UTF8Encoding(true).GetBytes("<?xml version=\"1.0\" encoding=\"utf-8\"?>" + Environment.NewLine + "<credentials>" + Environment.NewLine + "<username>***</username>" + Environment.NewLine + "<password>***</password>" + Environment.NewLine + "</credentials>");
                     fs.Write(info, 0, info.Length);
                 }
+                Encrypt();
             }
             //Loads in xml data in creds.xml
+            Decrypt();
             XmlDocument doc = new XmlDocument();
             doc.Load("creds.xml");
+            Encrypt();
 
             //Checks to see if data is '***' rather than actual data which is the case when the user logouts and does not log back in, or if the file was just created
             if (doc.DocumentElement.SelectSingleNode("/credentials/password").InnerText == "***")
@@ -46,6 +50,7 @@ namespace ResumeEngineV2
                 richTextBoxResults.Visible = false;
                 progressBar1.Visible = false;
                 btnLogout.Visible = false;
+                this.AcceptButton = btnLoginSubmit;
             }
             else
             {
@@ -57,6 +62,7 @@ namespace ResumeEngineV2
                 lblPassword.Visible = false;
                 btnLoginSubmit.Visible = false;
                 this.Text = "Resume Search Engine - Logged in as " + doc.DocumentElement.SelectSingleNode("/credentials/username").InnerText;
+                this.AcceptButton = btnKeywordSubmit;
             }
         }
 
@@ -84,11 +90,13 @@ namespace ResumeEngineV2
                 ctx.ExecuteQuery();
 
                 //Load creds.xml and add user login credentials
+                Decrypt();
                 XmlDocument doc = new XmlDocument();
                 doc.Load("creds.xml");
                 doc.DocumentElement.SelectSingleNode("/credentials/username").InnerText = textBoxUsername.Text;
                 doc.DocumentElement.SelectSingleNode("/credentials/password").InnerText = textBoxPassword.Text;
                 doc.Save("creds.xml");
+                Encrypt();
 
                 //Hide login stuff
                 lblLogin.Visible = false;
@@ -105,26 +113,31 @@ namespace ResumeEngineV2
                 richTextBoxResults.Visible = true;
                 progressBar1.Visible = true;
                 btnLogout.Visible = true;
-
+                this.AcceptButton = btnKeywordSubmit;
                 this.Text = "Resume Search Engine - Logged in as " + textBoxUsername.Text;
             }
-            catch (Exception ex)
+            catch
             {
                 MessageBox.Show("Failed to authenticate username or password! Please try again.", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                textBoxUsername.Text = "";
+                textBoxPassword.Text = "";
             }
         }
 
         private void btnLogout_Click(object sender, EventArgs e)
         {
             //Load xml and set credentials to ***
+            Decrypt();
             XmlDocument doc = new XmlDocument();
             doc.Load("creds.xml");
             doc.DocumentElement.SelectSingleNode("/credentials/username").InnerText = "***";
             doc.DocumentElement.SelectSingleNode("/credentials/password").InnerText = "***";
             doc.Save("creds.xml");
+            Encrypt();
 
             //Whipe data stored in fields
             this.Text = "Resume Search Engine";
+            this.AcceptButton = btnLoginSubmit;
             txtBoxKeyword.Text = "";
             textBoxUsername.Text = "";
             textBoxPassword.Text = "";
@@ -170,8 +183,10 @@ namespace ResumeEngineV2
                 string targetSiteURL = @"https://aecon1.sharepoint.com/sites/bd/resume/";
 
                 //Read credentials from creds.xml
+                Decrypt();
                 XmlDocument doc = new XmlDocument();
                 doc.Load("creds.xml");
+                Encrypt();
 
                 var login = doc.DocumentElement.SelectSingleNode("/credentials/username").InnerText;
                 var password = doc.DocumentElement.SelectSingleNode("/credentials/password").InnerText;
@@ -410,6 +425,32 @@ namespace ResumeEngineV2
             txtBoxKeyword.Enabled = true;
             btnLogout.Enabled = true;
             progressBar1.Value = 0;
+        }
+
+        private void Encrypt()
+        {
+            string text = System.IO.File.ReadAllText("creds.xml");
+            byte[] key = new byte[8] { 1, 2, 3, 4, 5, 6, 7, 8 };
+
+            SymmetricAlgorithm algorithm = DES.Create();
+            ICryptoTransform transform = algorithm.CreateEncryptor(key, key);
+            byte[] inputbuffer = Encoding.Unicode.GetBytes(text);
+            byte[] outputBuffer = transform.TransformFinalBlock(inputbuffer, 0, inputbuffer.Length);
+
+            System.IO.File.WriteAllText(@"creds.xml", Convert.ToBase64String(outputBuffer));
+        }
+
+        private void Decrypt()
+        {
+            string text = System.IO.File.ReadAllText("creds.xml");
+            byte[] key = new byte[8] { 1, 2, 3, 4, 5, 6, 7, 8 };
+
+            SymmetricAlgorithm algorithm = DES.Create();
+            ICryptoTransform transform = algorithm.CreateDecryptor(key, key);
+            byte[] inputbuffer = Convert.FromBase64String(text);
+            byte[] outputBuffer = transform.TransformFinalBlock(inputbuffer, 0, inputbuffer.Length);
+
+            System.IO.File.WriteAllText(@"creds.xml", Encoding.Unicode.GetString(outputBuffer));
         }
     }
 }

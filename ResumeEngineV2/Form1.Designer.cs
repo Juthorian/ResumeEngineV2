@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
             this.progressBar1 = new System.Windows.Forms.ProgressBar();
             this.txtBoxKeyword = new System.Windows.Forms.TextBox();
             this.lblEnterKeyword = new System.Windows.Forms.Label();
@@ -183,6 +184,7 @@
             this.Controls.Add(this.lblEnterKeyword);
             this.Controls.Add(this.txtBoxKeyword);
             this.Controls.Add(this.progressBar1);
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "Form1";
             this.Text = "Resume Search Engine";
             this.ResumeLayout(false);

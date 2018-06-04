@@ -42,7 +42,7 @@ namespace ResumeEngineV2
             //Checks to see if data is '***' rather than actual data which is the case when the user logouts and does not log back in, or if the file was just created
             if (doc.DocumentElement.SelectSingleNode("/credentials/password").InnerText == "***")
             {
-                //Only display login stuff
+                //Only display login fields
                 lblEnterKeyword.Visible = false;
                 txtBoxKeyword.Visible = false;
                 btnKeywordSubmit.Visible = false;
@@ -54,7 +54,7 @@ namespace ResumeEngineV2
             }
             else
             {
-                //Do not display login stuff
+                //Do not display login fields
                 lblLogin.Visible = false;
                 textBoxUsername.Visible = false;
                 textBoxPassword.Visible = false;
@@ -98,7 +98,7 @@ namespace ResumeEngineV2
                 doc.Save("creds.xml");
                 Encrypt();
 
-                //Hide login stuff
+                //Hide login fields
                 lblLogin.Visible = false;
                 textBoxUsername.Visible = false;
                 textBoxPassword.Visible = false;
@@ -143,7 +143,7 @@ namespace ResumeEngineV2
             textBoxPassword.Text = "";
             lblResults.Text = "Results:";
 
-            //Only show login stuff
+            //Only show login fields
             lblLogin.Visible = true;
             textBoxUsername.Visible = true;
             textBoxPassword.Visible = true;

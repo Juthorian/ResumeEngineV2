@@ -33,11 +33,29 @@ namespace ResumeEngineV2
                 }
                 Encrypt();
             }
+            XmlDocument doc;
             //Loads in xml data in creds.xml
-            Decrypt();
-            XmlDocument doc = new XmlDocument();
-            doc.Load("creds.xml");
-            Encrypt();
+            try
+            {
+                Decrypt();
+                doc = new XmlDocument();
+                doc.Load("creds.xml");
+                Encrypt();
+            }
+            //Problem with file, delete it create new one with *** as username and pass which will force user to login in again
+            catch
+            {
+                MessageBox.Show("Failed to open data file. You will need to login in again!", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                System.IO.File.Delete("creds.xml");
+                using (FileStream fs = System.IO.File.Create("creds.xml"))
+                {
+                    Byte[] info = new UTF8Encoding(true).GetBytes("<?xml version=\"1.0\" encoding=\"utf-8\"?>" + Environment.NewLine + "<credentials>" + Environment.NewLine + "<username>***</username>" + Environment.NewLine + "<password>***</password>" + Environment.NewLine + "</credentials>");
+                    fs.Write(info, 0, info.Length);
+                }
+                doc = new XmlDocument();
+                doc.Load("creds.xml");
+                Encrypt();
+            }
 
             //Checks to see if data is '***' rather than actual data which is the case when the user logouts and does not log back in, or if the file was just created
             if (doc.DocumentElement.SelectSingleNode("/credentials/password").InnerText == "***")
@@ -80,6 +98,7 @@ namespace ResumeEngineV2
             {
                 securePassword.AppendChar(c);
             }
+            //User tries to login
             try
             {
                 SharePointOnlineCredentials onlineCredentials = new SharePointOnlineCredentials(login, securePassword);
@@ -116,6 +135,7 @@ namespace ResumeEngineV2
                 this.AcceptButton = btnKeywordSubmit;
                 this.Text = "Resume Search Engine - Logged in as " + textBoxUsername.Text;
             }
+            //Bad credentials, get user to try and login again
             catch
             {
                 MessageBox.Show("Failed to authenticate username or password! Please try again.", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
@@ -190,22 +210,37 @@ namespace ResumeEngineV2
 
                 var login = doc.DocumentElement.SelectSingleNode("/credentials/username").InnerText;
                 var password = doc.DocumentElement.SelectSingleNode("/credentials/password").InnerText;
-
                 string term = txtBoxKeyword.Text;
-
                 var securePassword = new SecureString();
 
                 foreach (char c in password)
                 {
                     securePassword.AppendChar(c);
                 }
-                SharePointOnlineCredentials onlineCredentials = new SharePointOnlineCredentials(login, securePassword);
 
-                ClientContext ctx = new ClientContext(targetSiteURL);
-                ctx.Credentials = onlineCredentials;
-                var web = ctx.Web;
-                ctx.Load(web);
-                ctx.ExecuteQuery();
+                ClientContext ctx;
+                Web web;
+                //Try and connect SharePoint
+                try
+                {
+                    SharePointOnlineCredentials onlineCredentials = new SharePointOnlineCredentials(login, securePassword);
+
+                    ctx = new ClientContext(targetSiteURL);
+                    ctx.Credentials = onlineCredentials;
+                    web = ctx.Web;
+                    ctx.Load(web);
+                    ctx.ExecuteQuery();
+                }
+                //Could not connect probably because of invalid credentials which could occur if user logged in to ResumeEngine but credentials were revoked in SharePoint later on
+                catch
+                {
+                    MessageBox.Show("Could not authenticate credentials. Logging out!", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                    btnKeywordSubmit.Enabled = true;
+                    txtBoxKeyword.Enabled = true;
+                    btnLogout.Enabled = true;
+                    btnLogout_Click(sender, e);
+                    return;
+                }
 
                 //Gets all folders under Documents
                 var list = web.Lists.GetByTitle("Documents");

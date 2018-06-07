@@ -288,6 +288,16 @@ namespace ResumeEngineV2
             Web web = (Web)arguments[1];
             string postData = "[";
             //Loops through each file
+            if (totalCount <= 0)
+            {
+                MessageBox.Show("\nThere are no Text Resumes in the SharePoint");
+                List<object> newArgs = new List<object>();
+                newArgs.Add("Results:");
+                newArgs.Add("");
+                newArgs.Add(true);
+                e.Result = newArgs;
+                return;
+            }
             foreach (var item in (FileCollection)arguments[0])
             {
                 count++;
@@ -314,6 +324,10 @@ namespace ResumeEngineV2
                 for (int i = 0; i < convText.Length; i++)
                 {
                     if (convText[i] == '\t')
+                    {
+                        builder.Add(' ');
+                    }
+                    else if (convText[i] == char.MinValue)
                     {
                         builder.Add(' ');
                     }
@@ -363,6 +377,7 @@ namespace ResumeEngineV2
             postData = postData.Remove(postData.Length - 1, 1) + "]";
 
             //System.IO.File.WriteAllText(@"C:\\Users\\brahamj\\Downloads\\jsonPost.txt", postData);
+            //postData = System.IO.File.ReadAllText(@"C:\\Users\\brahamj\\Downloads\\jsonPost.txt");
 
             //API Request to cortical.io to compare text taken from SharePoint with a keyword the user provided
             WebRequest webRequest = WebRequest.Create("http://api.cortical.io:80/rest/compare/bulk?retina_name=en_associative");

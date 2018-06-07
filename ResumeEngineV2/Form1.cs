@@ -1,5 +1,8 @@
-﻿using Microsoft.SharePoint.Client;
+﻿using iTextSharp.text.pdf;
+using iTextSharp.text.pdf.parser;
+using Microsoft.SharePoint.Client;
 using Newtonsoft.Json;
+using Spire.Doc;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -257,7 +260,7 @@ namespace ResumeEngineV2
                 foreach (Folder f in fcol)
                 {
                     //If folder is named Text
-                    if (f.Name == "Text")
+                    if (f.Name == "Original")
                     {
                         //Get all files under text folder
                         ctx.Load(f.Files);
@@ -287,10 +290,11 @@ namespace ResumeEngineV2
             List<string> names = (System.Collections.Generic.List<string>)arguments[4];
             Web web = (Web)arguments[1];
             string postData = "[";
-            //Loops through each file
+            
+            //Check if there are resumes
             if (totalCount <= 0)
             {
-                MessageBox.Show("\nThere are no Text Resumes in the SharePoint");
+                MessageBox.Show("\nThere are no Resumes in the SharePoint");
                 List<object> newArgs = new List<object>();
                 newArgs.Add("Results:");
                 newArgs.Add("");
@@ -298,22 +302,51 @@ namespace ResumeEngineV2
                 e.Result = newArgs;
                 return;
             }
+
+            //Loops through each file
             foreach (var item in (FileCollection)arguments[0])
             {
                 count++;
                 string fileName = item.Name;
                 names.Add(fileName.Replace(".txt",""));
-                var filePath = web.ServerRelativeUrl + "/Shared%20Documents/Text/" + fileName;
-                //Gets file from SharePoint
-                FileInformation fileInformation = Microsoft.SharePoint.Client.File.OpenBinaryDirect((ClientContext)arguments[2], filePath);
 
+                var filePath = web.ServerRelativeUrl + "/Shared%20Documents/Original/" + fileName;
+                //var filePathTxt = web.ServerRelativeUrl + "/Shared%20Documents/Text/" + fileName + ".txt";
+                FileInformation fileInformation = Microsoft.SharePoint.Client.File.OpenBinaryDirect((ClientContext)arguments[2], filePath);
                 string ext = System.IO.Path.GetExtension(fileName);
                 string convText = "";
 
-                //Reads file into string
-                using (StreamReader reader = new StreamReader(fileInformation.Stream))
+                //Convert file into text
+                if (ext == ".pdf")
                 {
-                    convText = reader.ReadToEnd();
+                    using (PdfReader reader = new PdfReader(fileInformation.Stream))
+                    {
+                        StringBuilder textBuild = new StringBuilder();
+                        for (int i = 1; i <= reader.NumberOfPages; i++)
+                        {
+                            textBuild.Append(PdfTextExtractor.GetTextFromPage(reader, i));
+                        }
+                        convText = textBuild.ToString();
+                    }
+                }
+                else
+                {
+                    using (var stream1 = new MemoryStream())
+                    {
+                        MemoryStream txtStream = new MemoryStream();
+                        Document document = new Document();
+                        fileInformation.Stream.CopyTo(stream1);
+                        document.LoadFromStream(stream1, FileFormat.Auto);
+                        document.SaveToStream(txtStream, FileFormat.Txt);
+                        txtStream.Position = 0;
+
+                        StreamReader reader = new StreamReader(txtStream);
+                        string readText = reader.ReadToEnd();
+
+                        //Remove watermark for spire
+                        readText = readText.Replace("Evaluation Warning: The document was created with Spire.Doc for .NET.", "");
+                        convText = readText;
+                    }
                 }
 
                 List<Char> builder = new List<char>();

@@ -23,7 +23,7 @@ namespace ResumeEngineV2
         public Form1()
         {
             InitializeComponent();
-            //Overlays progress bar ontop of rich text area where results are displayed
+            //Overlays progress bar ontop of gridview where results are displayed
             progressBar1.BringToFront();
 
             //Checks to see if creds.xml exists, if not creates file
@@ -68,7 +68,7 @@ namespace ResumeEngineV2
                 txtBoxKeyword.Visible = false;
                 btnKeywordSubmit.Visible = false;
                 lblResults.Visible = false;
-                richTextBoxResults.Visible = false;
+                resultsView.Visible = false;
                 progressBar1.Visible = false;
                 btnLogout.Visible = false;
                 this.AcceptButton = btnLoginSubmit;
@@ -132,7 +132,7 @@ namespace ResumeEngineV2
                 txtBoxKeyword.Visible = true;
                 btnKeywordSubmit.Visible = true;
                 lblResults.Visible = true;
-                richTextBoxResults.Visible = true;
+                resultsView.Visible = true;
                 progressBar1.Visible = true;
                 btnLogout.Visible = true;
                 this.AcceptButton = btnKeywordSubmit;
@@ -178,7 +178,7 @@ namespace ResumeEngineV2
             txtBoxKeyword.Visible = false;
             btnKeywordSubmit.Visible = false;
             lblResults.Visible = false;
-            richTextBoxResults.Visible = false;
+            resultsView.Visible = false;
             progressBar1.Visible = false;
             btnLogout.Visible = false;
         }
@@ -198,7 +198,7 @@ namespace ResumeEngineV2
                 lblResults.Text = "";
                 lblResults.Text = "Results:";
           
-                richTextBoxResults.Text = "";
+                resultsView.Text = "";
                 btnKeywordSubmit.Enabled = false;
                 txtBoxKeyword.Enabled = false;
                 btnLogout.Enabled = false;
@@ -319,6 +319,7 @@ namespace ResumeEngineV2
                 //Convert file into text
                 if (ext == ".pdf")
                 {
+                    //Using ITextSharp pdf library
                     using (PdfReader reader = new PdfReader(fileInformation.Stream))
                     {
                         StringBuilder textBuild = new StringBuilder();
@@ -331,6 +332,8 @@ namespace ResumeEngineV2
                 }
                 else
                 {
+                    //Using Spire office library instead of interop because interop is slow and Microsoft does not currently recommend,
+                    //and does not support, Automation of Microsoft Office applications from any unattended non-interactive client application or component
                     using (var stream1 = new MemoryStream())
                     {
                         MemoryStream txtStream = new MemoryStream();
@@ -467,19 +470,22 @@ namespace ResumeEngineV2
                 percentName = percentName.OrderByDescending(x => x.Key).ToList();
             }
 
-            string responseFull = "";
-            //Generates response to populate rich text area
+            List<string> namesList = new List<string>();
+            List<string> keyList = new List<string>();
+            //Generates response to populate gridView
             for (int i = 0; i < percentName.Count(); i++)
             {
-                responseFull += (i + 1 + ". \"" + names[percentName[i].Value] + "\" with " + percentName[i].Key + "%\n");
+                namesList.Add(names[percentName[i].Value]);
+                keyList.Add(percentName[i].Key + "%");
             }
             
             //Sends finished data to e.Result so when backgroundWorker1 is completed it can access the data and correctly update the fields
             //This has to be done as you cannot update the fields inside backgroundWorker thread
             List<object> returnArgs = new List<object>();
             returnArgs.Add("Results for \"" + (string)arguments[3] + "\":");
-            returnArgs.Add(responseFull);
             returnArgs.Add(false);
+            returnArgs.Add(namesList);
+            returnArgs.Add(keyList);
             e.Result = returnArgs;
         }
 
@@ -494,11 +500,18 @@ namespace ResumeEngineV2
             //Update fields
             List<object> arguments = e.Result as List<object>;
             //Argument[2] will only be true if system could not connect to cortical.io service which in that case no results are available
-            if ((Boolean)arguments[2] == false)
+            if ((Boolean)arguments[1] == false)
             {
+                List<string> namesList = (List<string>)arguments[2];
+                List<string> keyList = (List<string>)arguments[3];
+
                 lblResults.Text = (string)arguments[0];
-                richTextBoxResults.Text = (string)arguments[1];
                 progressBar1.Visible = false;
+                for (int i = 0; i < namesList.Count(); i++)
+                {
+                    resultsView.Rows.Add(namesList[i], keyList[i]);
+                    resultsView.Rows[i].HeaderCell.Value = String.Format("{0}", resultsView.Rows[i].Index + 1);
+                }
             }
             else
             {

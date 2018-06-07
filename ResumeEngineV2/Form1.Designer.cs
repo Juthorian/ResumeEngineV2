@@ -28,12 +28,13 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
             this.progressBar1 = new System.Windows.Forms.ProgressBar();
             this.txtBoxKeyword = new System.Windows.Forms.TextBox();
             this.lblEnterKeyword = new System.Windows.Forms.Label();
             this.btnKeywordSubmit = new System.Windows.Forms.Button();
-            this.richTextBoxResults = new System.Windows.Forms.RichTextBox();
             this.lblResults = new System.Windows.Forms.Label();
             this.backgroundWorker1 = new System.ComponentModel.BackgroundWorker();
             this.lblLogin = new System.Windows.Forms.Label();
@@ -43,6 +44,10 @@
             this.btnLogout = new System.Windows.Forms.Button();
             this.lblUsername = new System.Windows.Forms.Label();
             this.lblPassword = new System.Windows.Forms.Label();
+            this.resultsView = new System.Windows.Forms.DataGridView();
+            this.FileName = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Percent = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            ((System.ComponentModel.ISupportInitialize)(this.resultsView)).BeginInit();
             this.SuspendLayout();
             // 
             // progressBar1
@@ -77,14 +82,6 @@
             this.btnKeywordSubmit.Text = "Submit";
             this.btnKeywordSubmit.UseVisualStyleBackColor = true;
             this.btnKeywordSubmit.Click += new System.EventHandler(this.btnKeywordSubmit_Click);
-            // 
-            // richTextBoxResults
-            // 
-            this.richTextBoxResults.Location = new System.Drawing.Point(330, 48);
-            this.richTextBoxResults.Name = "richTextBoxResults";
-            this.richTextBoxResults.Size = new System.Drawing.Size(436, 321);
-            this.richTextBoxResults.TabIndex = 4;
-            this.richTextBoxResults.Text = "";
             // 
             // lblResults
             // 
@@ -166,11 +163,52 @@
             this.lblPassword.Text = "P";
             this.lblPassword.TextAlign = System.Drawing.ContentAlignment.TopRight;
             // 
+            // resultsView
+            // 
+            this.resultsView.AllowUserToAddRows = false;
+            this.resultsView.AllowUserToDeleteRows = false;
+            this.resultsView.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.resultsView.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
+            this.FileName,
+            this.Percent});
+            this.resultsView.Location = new System.Drawing.Point(330, 48);
+            this.resultsView.Name = "resultsView";
+            this.resultsView.ReadOnly = true;
+            this.resultsView.RightToLeft = System.Windows.Forms.RightToLeft.No;
+            dataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.TopLeft;
+            dataGridViewCellStyle1.BackColor = System.Drawing.SystemColors.Control;
+            dataGridViewCellStyle1.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            dataGridViewCellStyle1.ForeColor = System.Drawing.SystemColors.WindowText;
+            dataGridViewCellStyle1.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle1.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle1.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+            this.resultsView.RowHeadersDefaultCellStyle = dataGridViewCellStyle1;
+            this.resultsView.RowHeadersWidth = 71;
+            dataGridViewCellStyle2.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            this.resultsView.RowsDefaultCellStyle = dataGridViewCellStyle2;
+            this.resultsView.Size = new System.Drawing.Size(436, 321);
+            this.resultsView.TabIndex = 13;
+            // 
+            // FileName
+            // 
+            this.FileName.HeaderText = "FileName";
+            this.FileName.Name = "FileName";
+            this.FileName.ReadOnly = true;
+            this.FileName.Width = 260;
+            // 
+            // Percent
+            // 
+            this.Percent.HeaderText = "Percent";
+            this.Percent.Name = "Percent";
+            this.Percent.ReadOnly = true;
+            this.Percent.Width = 85;
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(778, 381);
+            this.Controls.Add(this.resultsView);
             this.Controls.Add(this.lblPassword);
             this.Controls.Add(this.lblUsername);
             this.Controls.Add(this.btnLogout);
@@ -179,7 +217,6 @@
             this.Controls.Add(this.textBoxUsername);
             this.Controls.Add(this.lblLogin);
             this.Controls.Add(this.lblResults);
-            this.Controls.Add(this.richTextBoxResults);
             this.Controls.Add(this.btnKeywordSubmit);
             this.Controls.Add(this.lblEnterKeyword);
             this.Controls.Add(this.txtBoxKeyword);
@@ -187,6 +224,7 @@
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "Form1";
             this.Text = "Resume Search Engine";
+            ((System.ComponentModel.ISupportInitialize)(this.resultsView)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -198,7 +236,6 @@
         private System.Windows.Forms.TextBox txtBoxKeyword;
         private System.Windows.Forms.Label lblEnterKeyword;
         private System.Windows.Forms.Button btnKeywordSubmit;
-        private System.Windows.Forms.RichTextBox richTextBoxResults;
         private System.Windows.Forms.Label lblResults;
         private System.ComponentModel.BackgroundWorker backgroundWorker1;
         private System.Windows.Forms.Label lblLogin;
@@ -208,6 +245,9 @@
         private System.Windows.Forms.Button btnLogout;
         private System.Windows.Forms.Label lblUsername;
         private System.Windows.Forms.Label lblPassword;
+        private System.Windows.Forms.DataGridView resultsView;
+        private System.Windows.Forms.DataGridViewTextBoxColumn FileName;
+        private System.Windows.Forms.DataGridViewTextBoxColumn Percent;
     }
 }
 

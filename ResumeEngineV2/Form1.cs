@@ -197,8 +197,11 @@ namespace ResumeEngineV2
                 //Fixes weird bug where label is cut off
                 lblResults.Text = "";
                 lblResults.Text = "Results:";
-          
-                resultsView.Text = "";
+
+                //Whipes results GridView of old data
+                resultsView.Rows.Clear();
+                resultsView.Refresh();
+
                 btnKeywordSubmit.Enabled = false;
                 txtBoxKeyword.Enabled = false;
                 btnLogout.Enabled = false;

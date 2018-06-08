@@ -198,7 +198,7 @@
             // 
             // Percent
             // 
-            this.Percent.HeaderText = "Percent";
+            this.Percent.HeaderText = "Percent Match";
             this.Percent.Name = "Percent";
             this.Percent.ReadOnly = true;
             this.Percent.Width = 85;

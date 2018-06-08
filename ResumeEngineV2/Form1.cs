@@ -133,6 +133,7 @@ namespace ResumeEngineV2
                 btnKeywordSubmit.Visible = true;
                 lblResults.Visible = true;
                 resultsView.Visible = true;
+                progressBar1.BringToFront();
                 progressBar1.Visible = true;
                 btnLogout.Visible = true;
                 this.AcceptButton = btnKeywordSubmit;
@@ -529,7 +530,7 @@ namespace ResumeEngineV2
         private void Encrypt()
         {
             string text = System.IO.File.ReadAllText("creds.xml");
-            byte[] key = new byte[8] { 1, 2, 3, 4, 5, 6, 7, 8 };
+            byte[] key = new byte[8] { 3, 8, 6, 1, 5, 7, 9, 2 };
 
             SymmetricAlgorithm algorithm = DES.Create();
             ICryptoTransform transform = algorithm.CreateEncryptor(key, key);
@@ -542,7 +543,7 @@ namespace ResumeEngineV2
         private void Decrypt()
         {
             string text = System.IO.File.ReadAllText("creds.xml");
-            byte[] key = new byte[8] { 1, 2, 3, 4, 5, 6, 7, 8 };
+            byte[] key = new byte[8] { 3, 8, 6, 1, 5, 7, 9, 2 };
 
             SymmetricAlgorithm algorithm = DES.Create();
             ICryptoTransform transform = algorithm.CreateDecryptor(key, key);

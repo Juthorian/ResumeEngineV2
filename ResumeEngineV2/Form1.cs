@@ -15,6 +15,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Windows.Forms;
 using System.Xml;
+using System.Net.NetworkInformation;
 
 namespace ResumeEngineV2
 {
@@ -186,6 +187,7 @@ namespace ResumeEngineV2
 
         private void btnKeywordSubmit_Click(object sender, EventArgs e)
         {
+            getKey();
             //User must enter something for search to work
             if (txtBoxKeyword.Text == "")
             {
@@ -530,7 +532,7 @@ namespace ResumeEngineV2
         private void Encrypt()
         {
             string text = System.IO.File.ReadAllText("creds.xml");
-            byte[] key = new byte[8] { 3, 8, 6, 1, 5, 7, 9, 2 };
+            byte[] key = getKey();
 
             SymmetricAlgorithm algorithm = DES.Create();
             ICryptoTransform transform = algorithm.CreateEncryptor(key, key);
@@ -543,7 +545,7 @@ namespace ResumeEngineV2
         private void Decrypt()
         {
             string text = System.IO.File.ReadAllText("creds.xml");
-            byte[] key = new byte[8] { 3, 8, 6, 1, 5, 7, 9, 2 };
+            byte[] key = getKey();
 
             SymmetricAlgorithm algorithm = DES.Create();
             ICryptoTransform transform = algorithm.CreateDecryptor(key, key);
@@ -551,6 +553,28 @@ namespace ResumeEngineV2
             byte[] outputBuffer = transform.TransformFinalBlock(inputbuffer, 0, inputbuffer.Length);
 
             System.IO.File.WriteAllText(@"creds.xml", Encoding.Unicode.GetString(outputBuffer));
+        }
+
+        private byte[] getKey()
+        {
+            try
+            {
+                var macAddr =
+                    (
+                        from nic in NetworkInterface.GetAllNetworkInterfaces()
+                        where nic.OperationalStatus == OperationalStatus.Up
+                        select nic.GetPhysicalAddress().ToString()
+                    ).FirstOrDefault();
+                macAddr = macAddr.Substring(0, 8);
+                byte[] macByte = new UTF8Encoding(true).GetBytes(macAddr);
+                return macByte;
+            }
+            catch
+            {
+                //Mac Address could not be found, use default key
+                byte[] key = new byte[8] { 3, 8, 6, 1, 5, 7, 9, 2 };
+                return key;
+            }
         }
     }
 }

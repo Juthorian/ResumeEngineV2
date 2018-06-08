@@ -187,7 +187,6 @@ namespace ResumeEngineV2
 
         private void btnKeywordSubmit_Click(object sender, EventArgs e)
         {
-            getKey();
             //User must enter something for search to work
             if (txtBoxKeyword.Text == "")
             {
@@ -303,7 +302,6 @@ namespace ResumeEngineV2
                 MessageBox.Show("\nThere are no Resumes in the SharePoint");
                 List<object> newArgs = new List<object>();
                 newArgs.Add("Results:");
-                newArgs.Add("");
                 newArgs.Add(true);
                 e.Result = newArgs;
                 return;
@@ -448,7 +446,6 @@ namespace ResumeEngineV2
                 MessageBox.Show("\nCannot connect to cortical.io API. Aborting!\n\nError: " + ex.Message);
                 List<object> newArgs = new List<object>();
                 newArgs.Add("Results:");
-                newArgs.Add("");
                 newArgs.Add(true);
                 e.Result = newArgs;
                 return;

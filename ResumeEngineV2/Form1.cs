@@ -21,6 +21,8 @@ namespace ResumeEngineV2
 {
     public partial class Form1 : System.Windows.Forms.Form
     {
+        public List<string> namesOrdered = new List<string>();
+        public List<string> linksOrdered = new List<string>();
         public Form1()
         {
             InitializeComponent();
@@ -188,9 +190,9 @@ namespace ResumeEngineV2
         private void btnKeywordSubmit_Click(object sender, EventArgs e)
         {
             //User must enter something for search to work
-            if (txtBoxKeyword.Text == "")
+            if (txtBoxKeyword.Text == "" || txtBoxKeyword.Text.Contains("\"") || txtBoxKeyword.Text.Contains("\\"))
             {
-                MessageBox.Show("Please enter a valid keyword!", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                MessageBox.Show("Please enter a valid keyword!\n\nKeyword can not be empty\nKeyword can not contain the following characters:\n\" (double quotation mark) or \\ (Backslash)", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
             }
             else
             {
@@ -293,6 +295,7 @@ namespace ResumeEngineV2
             int totalCount = (int)arguments[5];
             int count = 0;
             List<string> names = (System.Collections.Generic.List<string>)arguments[4];
+            List<string> links = new List<string>();
             Web web = (Web)arguments[1];
             string postData = "[";
             
@@ -312,6 +315,7 @@ namespace ResumeEngineV2
             {
                 count++;
                 string fileName = item.Name;
+                links.Add(item.LinkingUri);
                 names.Add(fileName.Replace(".txt",""));
 
                 var filePath = web.ServerRelativeUrl + "/Shared%20Documents/Original/" + fileName;
@@ -456,6 +460,7 @@ namespace ResumeEngineV2
 
             //Calculates match percent for each return object which correlates to each resume
             List<KeyValuePair<double, int>> percentName = new List<KeyValuePair<double, int>>();
+            List<KeyValuePair<double, string>> percentLink = new List<KeyValuePair<double, string>>();
             for (int i = 0; i < jsonObj.Count; i++)
             {
                 double matchPercent = Math.Round((double)jsonObj[i].cosineSimilarity, 3);
@@ -468,26 +473,27 @@ namespace ResumeEngineV2
                     matchPercent = Math.Round(((Math.Pow(Math.Log10(1 / matchPercent), 3.55) * -1) + 1) * 100, 2);
                 }
 
+                percentLink.Add(new KeyValuePair<double, string>(matchPercent, links[i]));
                 percentName.Add(new KeyValuePair<double, int>(matchPercent, i));
-
-                percentName = percentName.OrderByDescending(x => x.Key).ToList();
             }
 
-            List<string> namesList = new List<string>();
+            percentName = percentName.OrderByDescending(x => x.Key).ToList();
+            percentLink = percentLink.OrderByDescending(x => x.Key).ToList();
+
             List<string> keyList = new List<string>();
             //Generates response to populate gridView
             for (int i = 0; i < percentName.Count(); i++)
             {
-                namesList.Add(names[percentName[i].Value]);
+                namesOrdered.Add(names[percentName[i].Value]);
+                linksOrdered.Add(percentLink[i].Value);
                 keyList.Add(percentName[i].Key + "%");
             }
             
             //Sends finished data to e.Result so when backgroundWorker1 is completed it can access the data and correctly update the fields
             //This has to be done as you cannot update the fields inside backgroundWorker thread
             List<object> returnArgs = new List<object>();
-            returnArgs.Add("Results for \"" + (string)arguments[3] + "\":");
+            returnArgs.Add("Results for \"" + (string)arguments[3] + "\":   (You can double click any row to view the resume)");
             returnArgs.Add(false);
-            returnArgs.Add(namesList);
             returnArgs.Add(keyList);
             e.Result = returnArgs;
         }
@@ -505,14 +511,13 @@ namespace ResumeEngineV2
             //Argument[2] will only be true if system could not connect to cortical.io service which in that case no results are available
             if ((Boolean)arguments[1] == false)
             {
-                List<string> namesList = (List<string>)arguments[2];
-                List<string> keyList = (List<string>)arguments[3];
+                List<string> keyList = (List<string>)arguments[2];
 
                 lblResults.Text = (string)arguments[0];
                 progressBar1.Visible = false;
-                for (int i = 0; i < namesList.Count(); i++)
+                for (int i = 0; i < namesOrdered.Count(); i++)
                 {
-                    resultsView.Rows.Add(namesList[i], keyList[i]);
+                    resultsView.Rows.Add(namesOrdered[i], keyList[i]);
                     resultsView.Rows[i].HeaderCell.Value = String.Format("{0}", resultsView.Rows[i].Index + 1);
                 }
             }
@@ -524,6 +529,18 @@ namespace ResumeEngineV2
             txtBoxKeyword.Enabled = true;
             btnLogout.Enabled = true;
             progressBar1.Value = 0;
+        }
+
+        private void resultsView_CellClick(object sender, DataGridViewCellEventArgs e)
+        {
+            if (System.IO.Path.GetExtension(namesOrdered[e.RowIndex]) == ".pdf")
+            {
+                System.Diagnostics.Process.Start("https://aecon1.sharepoint.com/sites/bd/resume/Shared%20Documents/Original/" + namesOrdered[e.RowIndex]);
+            }
+            else
+            {
+                System.Diagnostics.Process.Start(linksOrdered[e.RowIndex]);
+            }
         }
 
         private void Encrypt()

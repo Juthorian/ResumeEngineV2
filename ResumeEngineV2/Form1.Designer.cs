@@ -188,6 +188,7 @@
             this.resultsView.RowsDefaultCellStyle = dataGridViewCellStyle2;
             this.resultsView.Size = new System.Drawing.Size(436, 321);
             this.resultsView.TabIndex = 13;
+            this.resultsView.CellDoubleClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.resultsView_CellClick);
             // 
             // FileName
             // 

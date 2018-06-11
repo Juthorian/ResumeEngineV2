@@ -189,6 +189,10 @@ namespace ResumeEngineV2
 
         private void btnKeywordSubmit_Click(object sender, EventArgs e)
         {
+            //Whipe global Lists
+            namesOrdered.Clear();
+            linksOrdered.Clear();
+
             //User must enter something for search to work
             if (txtBoxKeyword.Text == "" || txtBoxKeyword.Text.Contains("\"") || txtBoxKeyword.Text.Contains("\\"))
             {
@@ -492,7 +496,7 @@ namespace ResumeEngineV2
             //Sends finished data to e.Result so when backgroundWorker1 is completed it can access the data and correctly update the fields
             //This has to be done as you cannot update the fields inside backgroundWorker thread
             List<object> returnArgs = new List<object>();
-            returnArgs.Add("Results for \"" + (string)arguments[3] + "\":   (You can double click any row to view the resume)");
+            returnArgs.Add("Results for \"" + (string)arguments[3] + "\":\n(You can double click any row to view the resume)");
             returnArgs.Add(false);
             returnArgs.Add(keyList);
             e.Result = returnArgs;

@@ -427,9 +427,9 @@ namespace ResumeEngineV2
             }
 
             //Removes trailing ',' and replaces with ']' to close JSON object
-            //postData = postData.Remove(postData.Length - 1, 1) + "]";
+            postData = postData.Remove(postData.Length - 1, 1) + "]";
 
-            System.IO.File.WriteAllText(@"C:\\Users\\brahamj\\Downloads\\jsonPost.txt", postData);
+            //System.IO.File.WriteAllText(@"C:\\Users\\brahamj\\Downloads\\jsonPost.txt", postData);
             //postData = System.IO.File.ReadAllText(@"C:\\Users\\brahamj\\Downloads\\jsonPost.txt");
 
             //API Request to cortical.io to compare text taken from SharePoint with a keyword the user provided

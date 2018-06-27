@@ -47,6 +47,7 @@
             this.resultsView = new System.Windows.Forms.DataGridView();
             this.FileName = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.Percent = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.lblAddTextBox = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.resultsView)).BeginInit();
             this.SuspendLayout();
             // 
@@ -192,7 +193,7 @@
             // 
             // FileName
             // 
-            this.FileName.HeaderText = "FileName";
+            this.FileName.HeaderText = "File Name";
             this.FileName.Name = "FileName";
             this.FileName.ReadOnly = true;
             this.FileName.Width = 260;
@@ -204,11 +205,23 @@
             this.Percent.ReadOnly = true;
             this.Percent.Width = 85;
             // 
+            // lblAddTextBox
+            // 
+            this.lblAddTextBox.AutoSize = true;
+            this.lblAddTextBox.Location = new System.Drawing.Point(9, 61);
+            this.lblAddTextBox.Name = "lblAddTextBox";
+            this.lblAddTextBox.Size = new System.Drawing.Size(13, 13);
+            this.lblAddTextBox.TabIndex = 14;
+            this.lblAddTextBox.Text = "+";
+            this.lblAddTextBox.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            this.lblAddTextBox.Click += new System.EventHandler(this.lblAddTextBox_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(778, 381);
+            this.ClientSize = new System.Drawing.Size(807, 414);
+            this.Controls.Add(this.lblAddTextBox);
             this.Controls.Add(this.resultsView);
             this.Controls.Add(this.lblPassword);
             this.Controls.Add(this.lblUsername);
@@ -249,6 +262,7 @@
         private System.Windows.Forms.DataGridView resultsView;
         private System.Windows.Forms.DataGridViewTextBoxColumn FileName;
         private System.Windows.Forms.DataGridViewTextBoxColumn Percent;
+        private System.Windows.Forms.Label lblAddTextBox;
     }
 }
 

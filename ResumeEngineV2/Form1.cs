@@ -23,11 +23,18 @@ namespace ResumeEngineV2
     {
         public List<string> namesOrdered = new List<string>();
         public List<string> linksOrdered = new List<string>();
+        Label lblMinusTextBox;
+        TextBox txtBoxSecondKeyword;
+
         public Form1()
         {
             InitializeComponent();
             //Overlays progress bar ontop of gridview where results are displayed
             progressBar1.BringToFront();
+
+            //Add tool tip to + label
+            ToolTip tt = new ToolTip();
+            tt.SetToolTip(lblAddTextBox, "Click to add another keyword field");
 
             //Checks to see if creds.xml exists, if not creates file
             if (System.IO.File.Exists("creds.xml") == false)
@@ -74,6 +81,7 @@ namespace ResumeEngineV2
                 resultsView.Visible = false;
                 progressBar1.Visible = false;
                 btnLogout.Visible = false;
+                lblAddTextBox.Visible = false;
                 this.AcceptButton = btnLoginSubmit;
             }
             else
@@ -185,6 +193,7 @@ namespace ResumeEngineV2
             resultsView.Visible = false;
             progressBar1.Visible = false;
             btnLogout.Visible = false;
+            lblAddTextBox.Visible = false;
         }
 
         private void btnKeywordSubmit_Click(object sender, EventArgs e)
@@ -193,10 +202,14 @@ namespace ResumeEngineV2
             namesOrdered.Clear();
             linksOrdered.Clear();
 
-            //User must enter something for search to work
+            //User must enter something for search to work, if extra field is up user must fill in something in both fields for submit to work
             if (txtBoxKeyword.Text == "" || txtBoxKeyword.Text.Contains("\"") || txtBoxKeyword.Text.Contains("\\"))
             {
-                MessageBox.Show("Please enter a valid keyword!\n\nKeyword can not be empty\nKeyword can not contain the following characters:\n\" (double quotation mark) or \\ (Backslash)", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                MessageBox.Show("Please enter a valid keyword in first text field!\n\nKeyword can not be empty\nKeyword can not contain the following characters:\n\" (double quotation mark) or \\ (Backslash)", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+            }
+            else if (lblAddTextBox.Visible == false && (txtBoxSecondKeyword.Text == "" || txtBoxSecondKeyword.Text.Contains("\"") || txtBoxSecondKeyword.Text.Contains("\\")))
+            {
+                MessageBox.Show("Please enter a valid keyword in second text field!\n\nKeyword can not be empty\nKeyword can not contain the following characters:\n\" (double quotation mark) or \\ (Backslash)", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
             }
             else
             {
@@ -597,6 +610,45 @@ namespace ResumeEngineV2
                 //Mac Address could not be found, use default key
                 byte[] key = new byte[8] { 3, 8, 6, 1, 5, 7, 9, 2 };
                 return key;
+            }
+        }
+
+        private void lblAddTextBox_Click(object sender, EventArgs e)
+        {
+            lblAddTextBox.Visible = false;
+
+            lblMinusTextBox = new Label();
+            txtBoxSecondKeyword = new TextBox();
+
+            lblMinusTextBox.Name = "lblMinusTextBox";
+            lblMinusTextBox.Text = "-";
+            lblMinusTextBox.Location = new System.Drawing.Point(9, 91);
+            lblMinusTextBox.Size = new System.Drawing.Size(13, 13);
+            lblMinusTextBox.Click += new EventHandler(this.lblMinusTextBox_Click);
+            ToolTip tt = new ToolTip();
+            tt.SetToolTip(lblMinusTextBox, "Click to remove the other keyword field");
+            this.Controls.Add(lblMinusTextBox);
+            
+            txtBoxSecondKeyword.Name = "txtBoxSecondKeyword";
+            txtBoxSecondKeyword.Location = new System.Drawing.Point(30, 91);
+            txtBoxSecondKeyword.Size = new System.Drawing.Size(180, 20);
+            this.Controls.Add(txtBoxSecondKeyword);
+        }
+
+        private void lblMinusTextBox_Click(object sender, EventArgs e)
+        {
+            lblAddTextBox.Visible = true;
+            if (this.Controls.Contains(lblMinusTextBox) && this.Controls.Contains(txtBoxSecondKeyword))
+            {
+                this.Controls.Remove(lblMinusTextBox);
+                this.Controls.Remove(txtBoxSecondKeyword);
+
+                lblMinusTextBox.Dispose();
+                txtBoxSecondKeyword.Dispose();
+            }
+            else
+            {
+                MessageBox.Show("Failed remove extra keyword field", "Error! Field not found!", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
             }
         }
     }

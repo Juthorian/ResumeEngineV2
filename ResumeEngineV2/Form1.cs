@@ -462,7 +462,11 @@ namespace ResumeEngineV2
                 //Send new progress bar value to backgroundWorker1_ProgressChanged as fields cannot be updated in backgroundWorker thread
                 double progressPercent = ((double)count / totalCount) * 100;
                 progressPercent = Math.Round(progressPercent, 0);
-                backgroundWorker1.ReportProgress((int)progressPercent);
+                //Leave 2 percent of progress for time it takes to make api call
+                if (progressPercent <= 98)
+                {
+                    backgroundWorker1.ReportProgress((int)progressPercent);
+                }
             }
 
             //Removes trailing ',' and replaces with ']' to close JSON object
@@ -507,6 +511,7 @@ namespace ResumeEngineV2
                 e.Result = newArgs;
                 return;
             }
+            backgroundWorker1.ReportProgress(99);
 
             if (!String.IsNullOrEmpty(postData2))
             {
@@ -540,6 +545,7 @@ namespace ResumeEngineV2
                     return;
                 }
             }
+            backgroundWorker1.ReportProgress(100);
 
             //Formats return string as JSON
             dynamic jsonObj = JsonConvert.DeserializeObject<dynamic>(result);
@@ -588,6 +594,7 @@ namespace ResumeEngineV2
                 percentName.Add(new KeyValuePair<double, int>(matchPercent, i));
             }
 
+            //Order from greatest to least match percent
             percentName = percentName.OrderByDescending(x => x.Key).ToList();
             percentLink = percentLink.OrderByDescending(x => x.Key).ToList();
 

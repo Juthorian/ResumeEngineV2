@@ -151,9 +151,9 @@ namespace ResumeEngineV2
                 this.Text = "Resume Search Engine - Logged in as " + textBoxUsername.Text;
             }
             //Bad credentials, get user to try and login again
-            catch
+            catch (Exception ex)
             {
-                MessageBox.Show("Failed to authenticate username or password! Please try again.", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                MessageBox.Show("Failed to authenticate username or password! Please try again.\n\nDetails:\n" + ex.Message, "Error!", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
                 textBoxUsername.Text = "";
                 textBoxPassword.Text = "";
             }
@@ -223,9 +223,19 @@ namespace ResumeEngineV2
                 resultsView.Rows.Clear();
                 resultsView.Refresh();
 
+                //Disables fields to stop user from using them while results are being fetched
                 btnKeywordSubmit.Enabled = false;
                 txtBoxKeyword.Enabled = false;
                 btnLogout.Enabled = false;
+                if (lblAddTextBox.Visible == true)
+                {
+                    lblAddTextBox.Enabled = false;
+                }
+                else
+                {
+                    lblMinusTextBox.Enabled = false;
+                    txtBoxSecondKeyword.Enabled = false;
+                }
 
                 string targetSiteURL = @"https://aecon1.sharepoint.com/sites/bd/resume/";
 
@@ -238,6 +248,12 @@ namespace ResumeEngineV2
                 var login = doc.DocumentElement.SelectSingleNode("/credentials/username").InnerText;
                 var password = doc.DocumentElement.SelectSingleNode("/credentials/password").InnerText;
                 string term = txtBoxKeyword.Text;
+                string term2 = "";
+                if (lblAddTextBox.Visible == false)
+                {
+                    term2 = txtBoxSecondKeyword.Text;
+                }
+
                 var securePassword = new SecureString();
 
                 foreach (char c in password)
@@ -298,6 +314,7 @@ namespace ResumeEngineV2
                         arguments.Add(term);
                         arguments.Add(names);
                         arguments.Add(listItems.Count());
+                        arguments.Add(term2);
                         backgroundWorker1.WorkerReportsProgress = true;
                         backgroundWorker1.RunWorkerAsync(arguments);
                         break;
@@ -315,6 +332,11 @@ namespace ResumeEngineV2
             List<string> links = new List<string>();
             Web web = (Web)arguments[1];
             string postData = "[";
+            string postData2 = "";
+            if (!String.IsNullOrEmpty((string)arguments[6]))
+            {
+                postData2 = "[";
+            }
             
             //Check if there are resumes
             if (totalCount <= 0)
@@ -432,6 +454,10 @@ namespace ResumeEngineV2
 
                 //Build JSON request string each loop
                 postData += "[{\"term\": \"" + (string)arguments[3] + "\"},{\"text\": \"" + newConvText + "\"}],";
+                if (!String.IsNullOrEmpty(postData2))
+                {
+                    postData2 += "[{\"term\": \"" + (string)arguments[6] + "\"},{\"text\": \"" + newConvText + "\"}],";
+                }
 
                 //Send new progress bar value to backgroundWorker1_ProgressChanged as fields cannot be updated in backgroundWorker thread
                 double progressPercent = ((double)count / totalCount) * 100;
@@ -441,6 +467,10 @@ namespace ResumeEngineV2
 
             //Removes trailing ',' and replaces with ']' to close JSON object
             postData = postData.Remove(postData.Length - 1, 1) + "]";
+            if (!String.IsNullOrEmpty(postData2))
+            {
+                postData2 = postData2.Remove(postData2.Length - 1, 1) + "]";
+            }
 
             //System.IO.File.WriteAllText(@"C:\\Users\\brahamj\\Downloads\\jsonPost.txt", postData);
             //postData = System.IO.File.ReadAllText(@"C:\\Users\\brahamj\\Downloads\\jsonPost.txt");
@@ -458,6 +488,7 @@ namespace ResumeEngineV2
                 streamWriter.Close();
             }
             string result = "";
+            string result2 = "";
             //Recieve response from cortical.io API
             try
             {
@@ -477,8 +508,46 @@ namespace ResumeEngineV2
                 return;
             }
 
+            if (!String.IsNullOrEmpty(postData2))
+            {
+                webRequest = WebRequest.Create("http://api.cortical.io:80/rest/compare/bulk?retina_name=en_associative");
+                webRequest.Method = "POST";
+                webRequest.Headers["api-key"] = "bb355cc0-5873-11e8-9172-3ff24e827f76";
+                webRequest.ContentType = "application/json";
+                //Send request with postData string as the body
+                using (var streamWriter = new StreamWriter(webRequest.GetRequestStream()))
+                {
+                    streamWriter.Write(postData2);
+                    streamWriter.Flush();
+                    streamWriter.Close();
+                }
+                //Recieve response from cortical.io API
+                try
+                {
+                    WebResponse webResp = webRequest.GetResponse();
+                    using (var streamReader = new StreamReader(webResp.GetResponseStream()))
+                    {
+                        result2 = streamReader.ReadToEnd();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("\nCannot connect to cortical.io API. Aborting!\n\nError: " + ex.Message);
+                    List<object> newArgs = new List<object>();
+                    newArgs.Add("Results:");
+                    newArgs.Add(true);
+                    e.Result = newArgs;
+                    return;
+                }
+            }
+
             //Formats return string as JSON
             dynamic jsonObj = JsonConvert.DeserializeObject<dynamic>(result);
+            dynamic jsonObj2 = null;
+            if (!String.IsNullOrEmpty(postData2))
+            {
+                jsonObj2 = JsonConvert.DeserializeObject<dynamic>(result2);
+            }
 
             //Calculates match percent for each return object which correlates to each resume
             List<KeyValuePair<double, int>> percentName = new List<KeyValuePair<double, int>>();
@@ -486,6 +555,21 @@ namespace ResumeEngineV2
             for (int i = 0; i < jsonObj.Count; i++)
             {
                 double matchPercent = Math.Round((double)jsonObj[i].cosineSimilarity, 3);
+                double matchPercent2 = 0;
+                if (!String.IsNullOrEmpty(postData2))
+                {
+                    matchPercent2 = Math.Round((double)jsonObj2[i].cosineSimilarity, 3);
+
+                    if (matchPercent2 <= 0.1)
+                    {
+                        matchPercent2 = 0;
+                    }
+                    else
+                    {
+                        matchPercent2 = Math.Round(((Math.Pow(Math.Log10(1 / matchPercent2), 3.55) * -1) + 1) * 100, 2);
+                    }
+                }
+
                 if (matchPercent <= 0.1)
                 {
                     matchPercent = 0;
@@ -495,6 +579,11 @@ namespace ResumeEngineV2
                     matchPercent = Math.Round(((Math.Pow(Math.Log10(1 / matchPercent), 3.55) * -1) + 1) * 100, 2);
                 }
 
+                //If multiple keywords, average their 2 match percents
+                if (!String.IsNullOrEmpty(postData2))
+                {
+                    matchPercent = (matchPercent + matchPercent2) / 2;
+                }
                 percentLink.Add(new KeyValuePair<double, string>(matchPercent, links[i]));
                 percentName.Add(new KeyValuePair<double, int>(matchPercent, i));
             }
@@ -514,7 +603,14 @@ namespace ResumeEngineV2
             //Sends finished data to e.Result so when backgroundWorker1 is completed it can access the data and correctly update the fields
             //This has to be done as you cannot update the fields inside backgroundWorker thread
             List<object> returnArgs = new List<object>();
-            returnArgs.Add("Results for \"" + (string)arguments[3] + "\":\n(You can double click any row to view the resume)");
+            if (!String.IsNullOrEmpty(postData2))
+            {
+                returnArgs.Add("Results for \"" + (string)arguments[3] + "\" and \"" + (string)arguments[6] + "\":\n(You can double click any row to view the resume)");
+            }
+            else
+            {
+                returnArgs.Add("Results for \"" + (string)arguments[3] + "\":\n(You can double click any row to view the resume)");
+            }
             returnArgs.Add(false);
             returnArgs.Add(keyList);
             e.Result = returnArgs;
@@ -550,6 +646,15 @@ namespace ResumeEngineV2
             btnKeywordSubmit.Enabled = true;
             txtBoxKeyword.Enabled = true;
             btnLogout.Enabled = true;
+            if (lblAddTextBox.Visible == true)
+            {
+                lblAddTextBox.Enabled = true;
+            }
+            else
+            {
+                lblMinusTextBox.Enabled = true;
+                txtBoxSecondKeyword.Enabled = true;
+            }
             progressBar1.Value = 0;
         }
 

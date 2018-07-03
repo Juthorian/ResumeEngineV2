@@ -36,6 +36,8 @@ namespace ResumeEngineV2
             ToolTip tt = new ToolTip();
             tt.SetToolTip(lblAddTextBox, "Click to add another keyword field");
 
+            tt.SetToolTip(lblUsername, "Example: jbraham@aecon.com");
+
             //Checks to see if creds.xml exists, if not creates file
             if (System.IO.File.Exists("creds.xml") == false)
             {
@@ -147,6 +149,7 @@ namespace ResumeEngineV2
                 progressBar1.BringToFront();
                 progressBar1.Visible = true;
                 btnLogout.Visible = true;
+                lblAddTextBox.Visible = true;
                 this.AcceptButton = btnKeywordSubmit;
                 this.Text = "Resume Search Engine - Logged in as " + textBoxUsername.Text;
             }

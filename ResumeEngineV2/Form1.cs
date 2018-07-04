@@ -84,6 +84,7 @@ namespace ResumeEngineV2
                 progressBar1.Visible = false;
                 btnLogout.Visible = false;
                 lblAddTextBox.Visible = false;
+                cmbWeight.Visible = false;
                 this.AcceptButton = btnLoginSubmit;
             }
             else
@@ -150,6 +151,7 @@ namespace ResumeEngineV2
                 progressBar1.Visible = true;
                 btnLogout.Visible = true;
                 lblAddTextBox.Visible = true;
+                cmbWeight.Visible = true;
                 this.AcceptButton = btnKeywordSubmit;
                 this.Text = "Resume Search Engine - Logged in as " + textBoxUsername.Text;
             }
@@ -180,6 +182,7 @@ namespace ResumeEngineV2
             textBoxUsername.Text = "";
             textBoxPassword.Text = "";
             lblResults.Text = "Results:";
+            cmbWeight.Text = "100%";
 
             //Only show login fields
             lblLogin.Visible = true;
@@ -196,7 +199,18 @@ namespace ResumeEngineV2
             resultsView.Visible = false;
             progressBar1.Visible = false;
             btnLogout.Visible = false;
-            lblAddTextBox.Visible = false;
+            if (lblAddTextBox.Visible == false)
+            {
+                lblMinusTextBox.Visible = false;
+                txtBoxSecondKeyword.Text = "";
+                txtBoxSecondKeyword.Visible = false;
+            }
+            else
+            {
+                lblAddTextBox.Visible = false;
+            }
+            cmbWeight.Visible = false;
+            cmbWeight.Enabled = false;
         }
 
         private void btnKeywordSubmit_Click(object sender, EventArgs e)
@@ -214,6 +228,10 @@ namespace ResumeEngineV2
             {
                 MessageBox.Show("Please enter a valid keyword in second text field!\n\nKeyword can not be empty\nKeyword can not contain the following characters:\n\" (double quotation mark) or \\ (Backslash)", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
             }
+            else if (cmbWeight.Text == "Weight")
+            {
+                MessageBox.Show("Please select a weight for the first keyword field", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+            }
             else
             {
                 progressBar1.Visible = true;
@@ -230,6 +248,7 @@ namespace ResumeEngineV2
                 btnKeywordSubmit.Enabled = false;
                 txtBoxKeyword.Enabled = false;
                 btnLogout.Enabled = false;
+                cmbWeight.Enabled = false;
                 if (lblAddTextBox.Visible == true)
                 {
                     lblAddTextBox.Enabled = false;
@@ -318,6 +337,7 @@ namespace ResumeEngineV2
                         arguments.Add(names);
                         arguments.Add(listItems.Count());
                         arguments.Add(term2);
+                        arguments.Add(cmbWeight.Text);
                         backgroundWorker1.WorkerReportsProgress = true;
                         backgroundWorker1.RunWorkerAsync(arguments);
                         break;
@@ -334,6 +354,7 @@ namespace ResumeEngineV2
             List<string> names = (System.Collections.Generic.List<string>)arguments[4];
             List<string> links = new List<string>();
             Web web = (Web)arguments[1];
+            string weight = (string)arguments[7];
             string postData = "[";
             string postData2 = "";
             if (!String.IsNullOrEmpty((string)arguments[6]))
@@ -588,10 +609,13 @@ namespace ResumeEngineV2
                     matchPercent = Math.Round(((Math.Pow(Math.Log10(1 / matchPercent), 3.55) * -1) + 1) * 100, 2);
                 }
 
-                //If multiple keywords, average their 2 match percents
+                //If multiple keywords, get weighted percent
                 if (!String.IsNullOrEmpty(postData2))
                 {
-                    matchPercent = (matchPercent + matchPercent2) / 2;
+                    double firstWeight = (double)(Int32.Parse(weight.Replace("%", "")))/100;
+                    double secondWeight = 1 - firstWeight;
+
+                    matchPercent = (((matchPercent / 100) * firstWeight) + ((matchPercent2 / 100) * secondWeight)) * 100;
                 }
                 percentLink.Add(new KeyValuePair<double, string>(matchPercent, links[i]));
                 percentName.Add(new KeyValuePair<double, int>(matchPercent, i));
@@ -656,6 +680,7 @@ namespace ResumeEngineV2
             btnKeywordSubmit.Enabled = true;
             txtBoxKeyword.Enabled = true;
             btnLogout.Enabled = true;
+            cmbWeight.Enabled = true;
             if (lblAddTextBox.Visible == true)
             {
                 lblAddTextBox.Enabled = true;
@@ -748,6 +773,9 @@ namespace ResumeEngineV2
             txtBoxSecondKeyword.Location = new System.Drawing.Point(30, 91);
             txtBoxSecondKeyword.Size = new System.Drawing.Size(180, 20);
             this.Controls.Add(txtBoxSecondKeyword);
+
+            cmbWeight.Text = "Weight";
+            cmbWeight.Enabled = true;
         }
 
         private void lblMinusTextBox_Click(object sender, EventArgs e)
@@ -760,6 +788,9 @@ namespace ResumeEngineV2
 
                 lblMinusTextBox.Dispose();
                 txtBoxSecondKeyword.Dispose();
+
+                cmbWeight.Text = "100%";
+                cmbWeight.Enabled = false;
             }
             else
             {

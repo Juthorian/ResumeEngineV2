@@ -48,12 +48,13 @@
             this.FileName = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.Percent = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.lblAddTextBox = new System.Windows.Forms.Label();
+            this.cmbWeight = new System.Windows.Forms.ComboBox();
             ((System.ComponentModel.ISupportInitialize)(this.resultsView)).BeginInit();
             this.SuspendLayout();
             // 
             // progressBar1
             // 
-            this.progressBar1.Location = new System.Drawing.Point(330, 48);
+            this.progressBar1.Location = new System.Drawing.Point(402, 48);
             this.progressBar1.Name = "progressBar1";
             this.progressBar1.Size = new System.Drawing.Size(436, 321);
             this.progressBar1.TabIndex = 0;
@@ -76,7 +77,7 @@
             // 
             // btnKeywordSubmit
             // 
-            this.btnKeywordSubmit.Location = new System.Drawing.Point(234, 61);
+            this.btnKeywordSubmit.Location = new System.Drawing.Point(302, 61);
             this.btnKeywordSubmit.Name = "btnKeywordSubmit";
             this.btnKeywordSubmit.Size = new System.Drawing.Size(75, 23);
             this.btnKeywordSubmit.TabIndex = 3;
@@ -87,7 +88,7 @@
             // lblResults
             // 
             this.lblResults.AutoSize = true;
-            this.lblResults.Location = new System.Drawing.Point(327, 18);
+            this.lblResults.Location = new System.Drawing.Point(399, 18);
             this.lblResults.Name = "lblResults";
             this.lblResults.Size = new System.Drawing.Size(45, 13);
             this.lblResults.TabIndex = 5;
@@ -172,7 +173,7 @@
             this.resultsView.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
             this.FileName,
             this.Percent});
-            this.resultsView.Location = new System.Drawing.Point(330, 48);
+            this.resultsView.Location = new System.Drawing.Point(402, 48);
             this.resultsView.Name = "resultsView";
             this.resultsView.ReadOnly = true;
             this.resultsView.RightToLeft = System.Windows.Forms.RightToLeft.No;
@@ -216,11 +217,32 @@
             this.lblAddTextBox.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             this.lblAddTextBox.Click += new System.EventHandler(this.lblAddTextBox_Click);
             // 
+            // cmbWeight
+            // 
+            this.cmbWeight.Enabled = false;
+            this.cmbWeight.FormattingEnabled = true;
+            this.cmbWeight.Items.AddRange(new object[] {
+            "90%",
+            "80%",
+            "70%",
+            "60%",
+            "50%",
+            "40%",
+            "30%",
+            "20%",
+            "10%"});
+            this.cmbWeight.Location = new System.Drawing.Point(220, 60);
+            this.cmbWeight.Name = "cmbWeight";
+            this.cmbWeight.Size = new System.Drawing.Size(58, 21);
+            this.cmbWeight.TabIndex = 15;
+            this.cmbWeight.Text = "100%";
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(807, 414);
+            this.ClientSize = new System.Drawing.Size(875, 387);
+            this.Controls.Add(this.cmbWeight);
             this.Controls.Add(this.lblAddTextBox);
             this.Controls.Add(this.resultsView);
             this.Controls.Add(this.lblPassword);
@@ -263,6 +285,7 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn FileName;
         private System.Windows.Forms.DataGridViewTextBoxColumn Percent;
         private System.Windows.Forms.Label lblAddTextBox;
+        private System.Windows.Forms.ComboBox cmbWeight;
     }
 }
 

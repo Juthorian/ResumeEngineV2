@@ -680,7 +680,10 @@ namespace ResumeEngineV2
             btnKeywordSubmit.Enabled = true;
             txtBoxKeyword.Enabled = true;
             btnLogout.Enabled = true;
-            cmbWeight.Enabled = true;
+            if (cmbWeight.Text != "100%")
+            {
+                cmbWeight.Enabled = true;
+            }
             if (lblAddTextBox.Visible == true)
             {
                 lblAddTextBox.Enabled = true;

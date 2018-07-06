@@ -64,7 +64,7 @@
             this.txtBoxKeyword.Location = new System.Drawing.Point(30, 61);
             this.txtBoxKeyword.Name = "txtBoxKeyword";
             this.txtBoxKeyword.Size = new System.Drawing.Size(180, 20);
-            this.txtBoxKeyword.TabIndex = 1;
+            this.txtBoxKeyword.TabIndex = 2;
             // 
             // lblEnterKeyword
             // 
@@ -72,7 +72,7 @@
             this.lblEnterKeyword.Location = new System.Drawing.Point(61, 30);
             this.lblEnterKeyword.Name = "lblEnterKeyword";
             this.lblEnterKeyword.Size = new System.Drawing.Size(121, 13);
-            this.lblEnterKeyword.TabIndex = 2;
+            this.lblEnterKeyword.TabIndex = 0;
             this.lblEnterKeyword.Text = "Please enter a keyword:";
             // 
             // btnKeywordSubmit
@@ -80,7 +80,7 @@
             this.btnKeywordSubmit.Location = new System.Drawing.Point(302, 61);
             this.btnKeywordSubmit.Name = "btnKeywordSubmit";
             this.btnKeywordSubmit.Size = new System.Drawing.Size(75, 23);
-            this.btnKeywordSubmit.TabIndex = 3;
+            this.btnKeywordSubmit.TabIndex = 6;
             this.btnKeywordSubmit.Text = "Submit";
             this.btnKeywordSubmit.UseVisualStyleBackColor = true;
             this.btnKeywordSubmit.Click += new System.EventHandler(this.btnKeywordSubmit_Click);
@@ -91,7 +91,7 @@
             this.lblResults.Location = new System.Drawing.Point(399, 18);
             this.lblResults.Name = "lblResults";
             this.lblResults.Size = new System.Drawing.Size(45, 13);
-            this.lblResults.TabIndex = 5;
+            this.lblResults.TabIndex = 12;
             this.lblResults.Text = "Results:";
             // 
             // backgroundWorker1
@@ -106,16 +106,20 @@
             this.lblLogin.Location = new System.Drawing.Point(27, 119);
             this.lblLogin.Name = "lblLogin";
             this.lblLogin.Size = new System.Drawing.Size(33, 13);
-            this.lblLogin.TabIndex = 6;
+            this.lblLogin.TabIndex = 0;
             this.lblLogin.Text = "Login";
             this.lblLogin.TextAlign = System.Drawing.ContentAlignment.TopRight;
             // 
             // textBoxUsername
             // 
+            this.textBoxUsername.ForeColor = System.Drawing.SystemColors.ButtonShadow;
             this.textBoxUsername.Location = new System.Drawing.Point(30, 146);
             this.textBoxUsername.Name = "textBoxUsername";
             this.textBoxUsername.Size = new System.Drawing.Size(180, 20);
-            this.textBoxUsername.TabIndex = 7;
+            this.textBoxUsername.TabIndex = 3;
+            this.textBoxUsername.Text = "Example: jbraham@aecon.com";
+            this.textBoxUsername.Enter += new System.EventHandler(this.textBoxUsername_Enter);
+            this.textBoxUsername.Leave += new System.EventHandler(this.textBoxUsername_Leave);
             // 
             // textBoxPassword
             // 
@@ -123,14 +127,14 @@
             this.textBoxPassword.Name = "textBoxPassword";
             this.textBoxPassword.PasswordChar = '*';
             this.textBoxPassword.Size = new System.Drawing.Size(180, 20);
-            this.textBoxPassword.TabIndex = 8;
+            this.textBoxPassword.TabIndex = 5;
             // 
             // btnLoginSubmit
             // 
             this.btnLoginSubmit.Location = new System.Drawing.Point(135, 114);
             this.btnLoginSubmit.Name = "btnLoginSubmit";
             this.btnLoginSubmit.Size = new System.Drawing.Size(75, 23);
-            this.btnLoginSubmit.TabIndex = 9;
+            this.btnLoginSubmit.TabIndex = 1;
             this.btnLoginSubmit.Text = "Submit";
             this.btnLoginSubmit.UseVisualStyleBackColor = true;
             this.btnLoginSubmit.Click += new System.EventHandler(this.btnLoginSubmit_Click);
@@ -140,7 +144,7 @@
             this.btnLogout.Location = new System.Drawing.Point(12, 346);
             this.btnLogout.Name = "btnLogout";
             this.btnLogout.Size = new System.Drawing.Size(75, 23);
-            this.btnLogout.TabIndex = 10;
+            this.btnLogout.TabIndex = 7;
             this.btnLogout.Text = "Logout";
             this.btnLogout.UseVisualStyleBackColor = true;
             this.btnLogout.Click += new System.EventHandler(this.btnLogout_Click);
@@ -151,7 +155,7 @@
             this.lblUsername.Location = new System.Drawing.Point(9, 149);
             this.lblUsername.Name = "lblUsername";
             this.lblUsername.Size = new System.Drawing.Size(15, 13);
-            this.lblUsername.TabIndex = 11;
+            this.lblUsername.TabIndex = 2;
             this.lblUsername.Text = "U";
             this.lblUsername.TextAlign = System.Drawing.ContentAlignment.TopRight;
             // 
@@ -161,7 +165,7 @@
             this.lblPassword.Location = new System.Drawing.Point(9, 198);
             this.lblPassword.Name = "lblPassword";
             this.lblPassword.Size = new System.Drawing.Size(14, 13);
-            this.lblPassword.TabIndex = 12;
+            this.lblPassword.TabIndex = 4;
             this.lblPassword.Text = "P";
             this.lblPassword.TextAlign = System.Drawing.ContentAlignment.TopRight;
             // 
@@ -189,7 +193,8 @@
             dataGridViewCellStyle2.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
             this.resultsView.RowsDefaultCellStyle = dataGridViewCellStyle2;
             this.resultsView.Size = new System.Drawing.Size(436, 321);
-            this.resultsView.TabIndex = 13;
+            this.resultsView.TabIndex = 12;
+            this.resultsView.TabStop = false;
             this.resultsView.CellDoubleClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.resultsView_CellClick);
             // 
             // FileName
@@ -212,7 +217,7 @@
             this.lblAddTextBox.Location = new System.Drawing.Point(9, 61);
             this.lblAddTextBox.Name = "lblAddTextBox";
             this.lblAddTextBox.Size = new System.Drawing.Size(13, 13);
-            this.lblAddTextBox.TabIndex = 14;
+            this.lblAddTextBox.TabIndex = 1;
             this.lblAddTextBox.Text = "+";
             this.lblAddTextBox.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             this.lblAddTextBox.Click += new System.EventHandler(this.lblAddTextBox_Click);
@@ -221,6 +226,7 @@
             // 
             this.cmbWeight.Enabled = false;
             this.cmbWeight.FormattingEnabled = true;
+            this.cmbWeight.ItemHeight = 13;
             this.cmbWeight.Items.AddRange(new object[] {
             "90%",
             "80%",
@@ -234,7 +240,7 @@
             this.cmbWeight.Location = new System.Drawing.Point(220, 60);
             this.cmbWeight.Name = "cmbWeight";
             this.cmbWeight.Size = new System.Drawing.Size(58, 21);
-            this.cmbWeight.TabIndex = 15;
+            this.cmbWeight.TabIndex = 5;
             this.cmbWeight.Text = "100%";
             // 
             // Form1

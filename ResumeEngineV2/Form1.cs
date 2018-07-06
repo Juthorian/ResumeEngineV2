@@ -16,6 +16,7 @@ using System.Text;
 using System.Windows.Forms;
 using System.Xml;
 using System.Net.NetworkInformation;
+using System.Drawing;
 
 namespace ResumeEngineV2
 {
@@ -154,13 +155,18 @@ namespace ResumeEngineV2
                 cmbWeight.Visible = true;
                 this.AcceptButton = btnKeywordSubmit;
                 this.Text = "Resume Search Engine - Logged in as " + textBoxUsername.Text;
+
+                txtBoxKeyword.Focus();
             }
             //Bad credentials, get user to try and login again
             catch (Exception ex)
             {
                 MessageBox.Show("Failed to authenticate username or password! Please try again.\n\nDetails:\n" + ex.Message, "Error!", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
-                textBoxUsername.Text = "";
+                textBoxUsername.Text = "Example: jbraham@aecon.com";
+                textBoxUsername.ForeColor = SystemColors.ButtonShadow;
                 textBoxPassword.Text = "";
+
+                btnLoginSubmit.Focus();
             }
         }
 
@@ -179,7 +185,8 @@ namespace ResumeEngineV2
             this.Text = "Resume Search Engine";
             this.AcceptButton = btnLoginSubmit;
             txtBoxKeyword.Text = "";
-            textBoxUsername.Text = "";
+            textBoxUsername.Text = "Example: jbraham@aecon.com";
+            textBoxUsername.ForeColor = SystemColors.ButtonShadow;
             textBoxPassword.Text = "";
             lblResults.Text = "Results:";
             cmbWeight.Text = "100%";
@@ -672,6 +679,7 @@ namespace ResumeEngineV2
                     resultsView.Rows.Add(namesOrdered[i], keyList[i]);
                     resultsView.Rows[i].HeaderCell.Value = String.Format("{0}", resultsView.Rows[i].Index + 1);
                 }
+                resultsView.Focus();
             }
             else
             {
@@ -768,6 +776,7 @@ namespace ResumeEngineV2
             lblMinusTextBox.Location = new System.Drawing.Point(9, 91);
             lblMinusTextBox.Size = new System.Drawing.Size(13, 13);
             lblMinusTextBox.Click += new EventHandler(this.lblMinusTextBox_Click);
+            lblMinusTextBox.TabIndex = 3;
             ToolTip tt = new ToolTip();
             tt.SetToolTip(lblMinusTextBox, "Click to remove the other keyword field");
             this.Controls.Add(lblMinusTextBox);
@@ -775,6 +784,7 @@ namespace ResumeEngineV2
             txtBoxSecondKeyword.Name = "txtBoxSecondKeyword";
             txtBoxSecondKeyword.Location = new System.Drawing.Point(30, 91);
             txtBoxSecondKeyword.Size = new System.Drawing.Size(180, 20);
+            txtBoxSecondKeyword.TabIndex = 4;
             this.Controls.Add(txtBoxSecondKeyword);
 
             cmbWeight.Text = "Weight";
@@ -798,6 +808,24 @@ namespace ResumeEngineV2
             else
             {
                 MessageBox.Show("Failed remove extra keyword field", "Error! Field not found!", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+            }
+        }
+
+        private void textBoxUsername_Enter(object sender, EventArgs e)
+        {
+            if (textBoxUsername.Text == "Example: jbraham@aecon.com")
+            {
+                textBoxUsername.Text = "";
+                textBoxUsername.ForeColor = SystemColors.WindowText;
+            }
+        }
+
+        private void textBoxUsername_Leave(object sender, EventArgs e)
+        {
+            if (textBoxUsername.Text == "")
+            {
+                textBoxUsername.Text = "Example: jbraham@aecon.com";
+                textBoxUsername.ForeColor = SystemColors.ButtonShadow;
             }
         }
     }

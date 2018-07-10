@@ -49,6 +49,8 @@
             this.Percent = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.lblAddTextBox = new System.Windows.Forms.Label();
             this.cmbWeight = new System.Windows.Forms.ComboBox();
+            this.txtBoxExperience = new System.Windows.Forms.TextBox();
+            this.lblExperience = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.resultsView)).BeginInit();
             this.SuspendLayout();
             // 
@@ -144,7 +146,7 @@
             this.btnLogout.Location = new System.Drawing.Point(12, 346);
             this.btnLogout.Name = "btnLogout";
             this.btnLogout.Size = new System.Drawing.Size(75, 23);
-            this.btnLogout.TabIndex = 7;
+            this.btnLogout.TabIndex = 9;
             this.btnLogout.Text = "Logout";
             this.btnLogout.UseVisualStyleBackColor = true;
             this.btnLogout.Click += new System.EventHandler(this.btnLogout_Click);
@@ -243,11 +245,30 @@
             this.cmbWeight.TabIndex = 5;
             this.cmbWeight.Text = "100%";
             // 
+            // txtBoxExperience
+            // 
+            this.txtBoxExperience.Location = new System.Drawing.Point(220, 91);
+            this.txtBoxExperience.Name = "txtBoxExperience";
+            this.txtBoxExperience.Size = new System.Drawing.Size(37, 20);
+            this.txtBoxExperience.TabIndex = 7;
+            this.txtBoxExperience.Text = "0";
+            // 
+            // lblExperience
+            // 
+            this.lblExperience.AutoSize = true;
+            this.lblExperience.Location = new System.Drawing.Point(263, 94);
+            this.lblExperience.Name = "lblExperience";
+            this.lblExperience.Size = new System.Drawing.Size(122, 13);
+            this.lblExperience.TabIndex = 8;
+            this.lblExperience.Text = "Min Years of Experience";
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(875, 387);
+            this.Controls.Add(this.lblExperience);
+            this.Controls.Add(this.txtBoxExperience);
             this.Controls.Add(this.cmbWeight);
             this.Controls.Add(this.lblAddTextBox);
             this.Controls.Add(this.resultsView);
@@ -292,6 +313,8 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn Percent;
         private System.Windows.Forms.Label lblAddTextBox;
         private System.Windows.Forms.ComboBox cmbWeight;
+        private System.Windows.Forms.TextBox txtBoxExperience;
+        private System.Windows.Forms.Label lblExperience;
     }
 }
 

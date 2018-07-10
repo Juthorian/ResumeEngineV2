@@ -86,6 +86,8 @@ namespace ResumeEngineV2
                 btnLogout.Visible = false;
                 lblAddTextBox.Visible = false;
                 cmbWeight.Visible = false;
+                txtBoxExperience.Visible = false;
+                lblExperience.Visible = false;
                 this.AcceptButton = btnLoginSubmit;
             }
             else
@@ -153,6 +155,8 @@ namespace ResumeEngineV2
                 btnLogout.Visible = true;
                 lblAddTextBox.Visible = true;
                 cmbWeight.Visible = true;
+                txtBoxExperience.Visible = true;
+                lblExperience.Visible = true;
                 this.AcceptButton = btnKeywordSubmit;
                 this.Text = "Resume Search Engine - Logged in as " + textBoxUsername.Text;
 
@@ -190,6 +194,7 @@ namespace ResumeEngineV2
             textBoxPassword.Text = "";
             lblResults.Text = "Results:";
             cmbWeight.Text = "100%";
+            txtBoxExperience.Text = "0";
 
             //Only show login fields
             lblLogin.Visible = true;
@@ -218,6 +223,8 @@ namespace ResumeEngineV2
             }
             cmbWeight.Visible = false;
             cmbWeight.Enabled = false;
+            txtBoxExperience.Visible = false;
+            lblExperience.Visible = false;
         }
 
         private void btnKeywordSubmit_Click(object sender, EventArgs e)
@@ -238,6 +245,10 @@ namespace ResumeEngineV2
             else if (cmbWeight.Text == "Weight")
             {
                 MessageBox.Show("Please select a weight for the first keyword field", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+            }
+            else if (!int.TryParse(txtBoxExperience.Text, out int tempOut) || tempOut < 0)
+            {
+                MessageBox.Show("Please enter a valid number for years of experience greater then or equal to zero! ", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
             }
             else
             {
@@ -265,6 +276,7 @@ namespace ResumeEngineV2
                     lblMinusTextBox.Enabled = false;
                     txtBoxSecondKeyword.Enabled = false;
                 }
+                txtBoxExperience.Enabled = false;
 
                 string targetSiteURL = @"https://aecon1.sharepoint.com/sites/bd/resume/";
 
@@ -310,6 +322,9 @@ namespace ResumeEngineV2
                     btnKeywordSubmit.Enabled = true;
                     txtBoxKeyword.Enabled = true;
                     btnLogout.Enabled = true;
+                    cmbWeight.Enabled = true;
+                    lblAddTextBox.Enabled = true;
+                    txtBoxExperience.Enabled = true;
                     btnLogout_Click(sender, e);
                     return;
                 }
@@ -385,8 +400,6 @@ namespace ResumeEngineV2
             {
                 count++;
                 string fileName = item.Name;
-                links.Add(item.LinkingUri);
-                names.Add(fileName.Replace(".txt",""));
 
                 var filePath = web.ServerRelativeUrl + "/Shared%20Documents/Original/" + fileName;
                 //var filePathTxt = web.ServerRelativeUrl + "/Shared%20Documents/Text/" + fileName + ".txt";
@@ -483,11 +496,46 @@ namespace ResumeEngineV2
 
                 //System.IO.File.WriteAllText(@"C:\\Users\\brahamj\\Downloads\\newFormatTempText" + count + ".txt", newConvText);
 
-                //Build JSON request string each loop
-                postData += "[{\"term\": \"" + (string)arguments[3] + "\"},{\"text\": \"" + newConvText + "\"}],";
-                if (!String.IsNullOrEmpty(postData2))
+                //Check if keyword/similar word can be found in our own library otherwise use cortical.io
+                bool inExperience = false;
+                int lowestYear = -1;
+                int tempYear = 0;
+                foreach (string word in newConvText.Split(' '))
                 {
-                    postData2 += "[{\"term\": \"" + (string)arguments[6] + "\"},{\"text\": \"" + newConvText + "\"}],";
+                    if (inExperience == true && int.TryParse(word, out tempYear))
+                    {
+                        if (tempYear > 1960 && tempYear < DateTime.Now.Year - lowestYear && (lowestYear == -1 || lowestYear > tempYear))
+                        {
+                            lowestYear = tempYear;
+                        }
+                    }
+                    else if (inExperience == true && String.Equals(word, "Education", StringComparison.OrdinalIgnoreCase))
+                    {
+                        break;
+                    }
+                    else if (String.Equals(word, "Experience", StringComparison.OrdinalIgnoreCase) || String.Equals(word, "Employment", StringComparison.OrdinalIgnoreCase))
+                    {
+                        inExperience = true;
+                    }
+                }
+                int experienceYears = 0;
+                if (lowestYear != -1)
+                {
+                    experienceYears = DateTime.Now.Year - lowestYear;
+                }
+                int txtBoxOutExperience;
+                int.TryParse(txtBoxExperience.Text, out txtBoxOutExperience);
+                if (experienceYears >= txtBoxOutExperience)
+                {
+                    links.Add(item.LinkingUri);
+                    names.Add(fileName.Replace(".txt", ""));
+
+                    //Build JSON request string each loop
+                    postData += "[{\"term\": \"" + (string)arguments[3] + "\"},{\"text\": \"" + newConvText + "\"}],";
+                    if (!String.IsNullOrEmpty(postData2))
+                    {
+                        postData2 += "[{\"term\": \"" + (string)arguments[6] + "\"},{\"text\": \"" + newConvText + "\"}],";
+                    }
                 }
 
                 //Send new progress bar value to backgroundWorker1_ProgressChanged as fields cannot be updated in backgroundWorker thread
@@ -505,6 +553,17 @@ namespace ResumeEngineV2
             if (!String.IsNullOrEmpty(postData2))
             {
                 postData2 = postData2.Remove(postData2.Length - 1, 1) + "]";
+            }
+
+            //No Data found
+            if (postData == "]")
+            {
+                MessageBox.Show("No data could be obtained using the search parameters!", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                List<object> newArgs = new List<object>();
+                newArgs.Add("Results:");
+                newArgs.Add(true);
+                e.Result = newArgs;
+                return;
             }
 
             //System.IO.File.WriteAllText(@"C:\\Users\\brahamj\\Downloads\\jsonPost.txt", postData);
@@ -640,7 +699,7 @@ namespace ResumeEngineV2
                 linksOrdered.Add(percentLink[i].Value);
                 keyList.Add(percentName[i].Key + "%");
             }
-            
+
             //Sends finished data to e.Result so when backgroundWorker1 is completed it can access the data and correctly update the fields
             //This has to be done as you cannot update the fields inside backgroundWorker thread
             List<object> returnArgs = new List<object>();
@@ -701,6 +760,8 @@ namespace ResumeEngineV2
                 lblMinusTextBox.Enabled = true;
                 txtBoxSecondKeyword.Enabled = true;
             }
+            txtBoxExperience.Enabled = true;
+
             progressBar1.Value = 0;
         }
 

@@ -129,7 +129,30 @@ namespace ResumeEngineV2
                 ctx.ExecuteQuery();
 
                 //Load creds.xml and add user login credentials
-                Decrypt();
+                try
+                {
+                    Decrypt();
+                }
+                catch
+                {
+                    MessageBox.Show("Failed to decrypt credentials file. Logging out!", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+
+                    if (System.IO.File.Exists("creds.xml") == true)
+                    {
+                        System.IO.File.Delete("creds.xml");
+                    }
+
+                    using (FileStream fs = System.IO.File.Create("creds.xml"))
+                    {
+                        Byte[] info = new UTF8Encoding(true).GetBytes("<?xml version=\"1.0\" encoding=\"utf-8\"?>" + Environment.NewLine + "<credentials>" + Environment.NewLine + "<username>***</username>" + Environment.NewLine + "<password>***</password>" + Environment.NewLine + "</credentials>");
+                        fs.Write(info, 0, info.Length);
+                    }
+                    Encrypt();
+
+                    btnLogout_Click(sender, e);
+                    return;
+                }
+
                 XmlDocument doc = new XmlDocument();
                 doc.Load("creds.xml");
                 doc.DocumentElement.SelectSingleNode("/credentials/username").InnerText = textBoxUsername.Text;
@@ -177,7 +200,29 @@ namespace ResumeEngineV2
         private void btnLogout_Click(object sender, EventArgs e)
         {
             //Load xml and set credentials to ***
-            Decrypt();
+            try
+            {
+                Decrypt();
+            }
+            catch
+            {
+                MessageBox.Show("Failed to decrypt credentials file. Logging out!", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+
+                if (System.IO.File.Exists("creds.xml") == true)
+                {
+                    System.IO.File.Delete("creds.xml");
+                }
+
+                using (FileStream fs = System.IO.File.Create("creds.xml"))
+                {
+                    Byte[] info = new UTF8Encoding(true).GetBytes("<?xml version=\"1.0\" encoding=\"utf-8\"?>" + Environment.NewLine + "<credentials>" + Environment.NewLine + "<username>***</username>" + Environment.NewLine + "<password>***</password>" + Environment.NewLine + "</credentials>");
+                    fs.Write(info, 0, info.Length);
+                }
+                Encrypt();
+
+                btnLogout_Click(sender, e);
+                return;
+            }
             XmlDocument doc = new XmlDocument();
             doc.Load("creds.xml");
             doc.DocumentElement.SelectSingleNode("/credentials/username").InnerText = "***";
@@ -281,7 +326,36 @@ namespace ResumeEngineV2
                 string targetSiteURL = @"https://aecon1.sharepoint.com/sites/bd/resume/";
 
                 //Read credentials from creds.xml
-                Decrypt();
+                //Decrypt failed, delete creds file, get user to login again
+                try
+                {
+                    Decrypt();
+                }
+                catch
+                {
+                    MessageBox.Show("Failed to decrypt credentials file. Logging out!", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+
+                    if (System.IO.File.Exists("creds.xml") == true)
+                    {
+                        System.IO.File.Delete("creds.xml");
+                    }
+                        
+                    using (FileStream fs = System.IO.File.Create("creds.xml"))
+                    {
+                        Byte[] info = new UTF8Encoding(true).GetBytes("<?xml version=\"1.0\" encoding=\"utf-8\"?>" + Environment.NewLine + "<credentials>" + Environment.NewLine + "<username>***</username>" + Environment.NewLine + "<password>***</password>" + Environment.NewLine + "</credentials>");
+                        fs.Write(info, 0, info.Length);
+                    }
+                    Encrypt();
+
+                    btnKeywordSubmit.Enabled = true;
+                    txtBoxKeyword.Enabled = true;
+                    btnLogout.Enabled = true;
+                    cmbWeight.Enabled = true;
+                    lblAddTextBox.Enabled = true;
+                    txtBoxExperience.Enabled = true;
+                    btnLogout_Click(sender, e);
+                    return;
+                }
                 XmlDocument doc = new XmlDocument();
                 doc.Load("creds.xml");
                 Encrypt();

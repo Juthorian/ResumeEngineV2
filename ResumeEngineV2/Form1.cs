@@ -457,7 +457,11 @@ namespace ResumeEngineV2
             {
                 postData2 = "[";
             }
-            
+            bool isUsingCortical = true;
+            List<KeyValuePair<double, int>> matchScoreName = new List<KeyValuePair<double, int>>();
+            List<KeyValuePair<double, string>> matchScoreLink = new List<KeyValuePair<double, string>>();
+            int matchScoreCounter = 0;
+
             //Check if there are resumes
             if (totalCount <= 0)
             {
@@ -467,6 +471,58 @@ namespace ResumeEngineV2
                 newArgs.Add(true);
                 e.Result = newArgs;
                 return;
+            }
+
+            //0 = energy, 1 = infrastructure, 2 = mining, 3 = conecessions, 4 = other
+            int whichLib = -1;
+
+            //Library of keywords
+            string[] energyLib = { "Energy", "Bruce", "Cogeneration", "Fabrication", "Gas", "Module", "Modules", "Nuclear", "Oil", "OPG", "Ontario Power Generation", "Pipeline", "Pipelines", "Utilities" };
+            string[] infrastructureLib = { "Infrastructure", "Airport", "Airports", "Asphalt", "Bridge", "Bridges", "Hydroelectric", "Rail", "Road", "Roads", "Transit", "Tunnel", "Tunnels", "Water Treatment" };
+            string[] miningLib = { "Mining", "Fabrication", "Mechanical Works", "Mine Site Development", "Module", "Modules", "Overburden Removal", "Processing Facilities", "Reclamation" };
+            string[] concessionsLib = { "Concessions", "Accounting", "Bank", "Banks", "Equity Investments", "Maintenance", "Operations", "Project Financing", "Project Development", "Public Private Partnership", "P3" };
+            string[] otherLib = { "Advisor", "Boilermaker", "Buyer", "CAD", "Carpenter", "Concrete", "Contract", "Controller", "Controls", "Coordinator", "Counsel", "Craft Recruiter", "Customer Service Representative", "Designer", "Dockmaster", "Document Control", "Draftsperson", "E&I", "Electrical and Instrumentation", "EHS", "Environmental health and safety", "Electrician", "Engineer", "Environment", "Equipment", "Estimator", "Field Support", "Network Support", "Fitter", "Welder", "Foreperson", "Foreman", "Inspector", "Ironwork", "Labourer", "Lead", "Locator", "Material", "Operator", "Pavement", "PEng", "Professional Engineer", "Planner", "Plumber", "Project Design", "Purchaser", "Requisitioner", "Risk", "Scheduler", "Specialist", "Splicer", "Superintendent", "Supervisor", "Support", "Surveyor", "Technical Services", "Technician", "Turnover", "Vendor" };
+
+            //Check if keyword matches any keywords in library and thus we are not using cortical.io
+            for (int i = 0; i < energyLib.Length; i++)
+            {
+                if (String.Equals((string)arguments[3], energyLib[i], StringComparison.OrdinalIgnoreCase))
+                {
+                    whichLib = 0;
+                    isUsingCortical = false;
+                }
+            }
+            for (int i = 0; i < infrastructureLib.Length; i++)
+            {
+                if (String.Equals((string)arguments[3], infrastructureLib[i], StringComparison.OrdinalIgnoreCase))
+                {
+                    whichLib = 1;
+                    isUsingCortical = false;
+                }
+            }
+            for (int i = 0; i < miningLib.Length; i++)
+            {
+                if (String.Equals((string)arguments[3], miningLib[i], StringComparison.OrdinalIgnoreCase))
+                {
+                    whichLib = 2;
+                    isUsingCortical = false;
+                }
+            }
+            for (int i = 0; i < concessionsLib.Length; i++)
+            {
+                if (String.Equals((string)arguments[3], concessionsLib[i], StringComparison.OrdinalIgnoreCase))
+                {
+                    whichLib = 3;
+                    isUsingCortical = false;
+                }
+            }
+            for (int i = 0; i < otherLib.Length; i++)
+            {
+                if (String.Equals((string)arguments[3], otherLib[i], StringComparison.OrdinalIgnoreCase))
+                {
+                    whichLib = 4;
+                    isUsingCortical = false;
+                }
             }
 
             //Loops through each file
@@ -570,45 +626,149 @@ namespace ResumeEngineV2
 
                 //System.IO.File.WriteAllText(@"C:\\Users\\brahamj\\Downloads\\newFormatTempText" + count + ".txt", newConvText);
 
-                //Check if keyword/similar word can be found in our own library otherwise use cortical.io
+                //Calculate years of experience
                 bool inExperience = false;
                 int lowestYear = -1;
                 int tempYear = 0;
+                //Loop through doc word by word
                 foreach (string word in newConvText.Split(' '))
                 {
+                    //Check if in experience section and came across a number 
                     if (inExperience == true && int.TryParse(word, out tempYear))
                     {
+                        //If the number is greater then 1960 and less then the current year, then if this is the first number found or the number is less then the current smallest number, store it
                         if (tempYear > 1960 && tempYear < DateTime.Now.Year - lowestYear && (lowestYear == -1 || lowestYear > tempYear))
                         {
                             lowestYear = tempYear;
                         }
                     }
+                    //If come across education section while searching in experience section stop searching
                     else if (inExperience == true && String.Equals(word, "Education", StringComparison.OrdinalIgnoreCase))
                     {
                         break;
                     }
+                    //If come across education sections or employment section start searching for years of experience
                     else if (String.Equals(word, "Experience", StringComparison.OrdinalIgnoreCase) || String.Equals(word, "Employment", StringComparison.OrdinalIgnoreCase))
                     {
                         inExperience = true;
                     }
                 }
                 int experienceYears = 0;
+                //If a lowest year was found, calculate years of experience
                 if (lowestYear != -1)
                 {
                     experienceYears = DateTime.Now.Year - lowestYear;
                 }
                 int txtBoxOutExperience;
                 int.TryParse(txtBoxExperience.Text, out txtBoxOutExperience);
+
+                //Only use candidates with the necessary years of experience in the final results
                 if (experienceYears >= txtBoxOutExperience)
                 {
                     links.Add(item.LinkingUri);
                     names.Add(fileName.Replace(".txt", ""));
 
-                    //Build JSON request string each loop
-                    postData += "[{\"term\": \"" + (string)arguments[3] + "\"},{\"text\": \"" + newConvText + "\"}],";
-                    if (!String.IsNullOrEmpty(postData2))
+                    //Use own library or cortical.io
+                    if (isUsingCortical == false)
                     {
-                        postData2 += "[{\"term\": \"" + (string)arguments[6] + "\"},{\"text\": \"" + newConvText + "\"}],";
+                        int numExactMatches = 0;
+                        int numCategoryMatches = 0;
+                        //Check occurances of keywords in resume
+                        foreach (string word in newConvText.Split(' '))
+                        {
+                            if (whichLib == 0)
+                            {
+                                for (int i = 1; i < energyLib.Length; i++)
+                                {
+                                    if (String.Equals(word, energyLib[i], StringComparison.OrdinalIgnoreCase))
+                                    {
+                                        if (String.Equals((string)arguments[3], energyLib[i], StringComparison.OrdinalIgnoreCase))
+                                        {
+                                            numExactMatches++;
+                                        }
+                                        else
+                                        {
+                                            numCategoryMatches++;
+                                        }
+                                    }
+                                }
+                            }
+                            else if (whichLib == 1)
+                            {
+                                for (int i = 1; i < infrastructureLib.Length; i++)
+                                {
+                                    if (String.Equals(word, infrastructureLib[i], StringComparison.OrdinalIgnoreCase))
+                                    {
+                                        if (String.Equals((string)arguments[3], infrastructureLib[i], StringComparison.OrdinalIgnoreCase))
+                                        {
+                                            numExactMatches++;
+                                        }
+                                        else
+                                        {
+                                            numCategoryMatches++;
+                                        }
+                                    }
+                                }
+                            }
+                            else if (whichLib == 2)
+                            {
+                                for (int i = 1; i < miningLib.Length; i++)
+                                {
+                                    if (String.Equals(word, miningLib[i], StringComparison.OrdinalIgnoreCase))
+                                    {
+                                        if (String.Equals((string)arguments[3], miningLib[i], StringComparison.OrdinalIgnoreCase))
+                                        {
+                                            numExactMatches++;
+                                        }
+                                        else
+                                        {
+                                            numCategoryMatches++;
+                                        }
+                                    }
+                                }
+                            }
+                            else if (whichLib == 3)
+                            {
+                                for (int i = 1; i < concessionsLib.Length; i++)
+                                {
+                                    if (String.Equals(word, concessionsLib[i], StringComparison.OrdinalIgnoreCase))
+                                    {
+                                        if (String.Equals((string)arguments[3], concessionsLib[i], StringComparison.OrdinalIgnoreCase))
+                                        {
+                                            numExactMatches++;
+                                        }
+                                        else
+                                        {
+                                            numCategoryMatches++;
+                                        }
+                                    }
+                                }
+                            }
+                            else if (whichLib == 4)
+                            {
+                                for (int i = 1; i < otherLib.Length; i++)
+                                {
+                                    if (String.Equals(word, otherLib[i], StringComparison.OrdinalIgnoreCase))
+                                    {
+                                        if (String.Equals((string)arguments[3], otherLib[i], StringComparison.OrdinalIgnoreCase))
+                                        {
+                                            numExactMatches++;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        matchScoreLink.Add(new KeyValuePair<double, string>(numExactMatches + (double)numCategoryMatches / 10, links[matchScoreCounter]));
+                        matchScoreName.Add(new KeyValuePair<double, int>(numExactMatches + (double)numCategoryMatches / 10, matchScoreCounter++));
+                    }
+                    else
+                    {
+                        //Build JSON request string each loop
+                        postData += "[{\"term\": \"" + (string)arguments[3] + "\"},{\"text\": \"" + newConvText + "\"}],";
+                        if (!String.IsNullOrEmpty(postData2))
+                        {
+                            postData2 += "[{\"term\": \"" + (string)arguments[6] + "\"},{\"text\": \"" + newConvText + "\"}],";
+                        }
                     }
                 }
 
@@ -622,81 +782,50 @@ namespace ResumeEngineV2
                 }
             }
 
-            //Removes trailing ',' and replaces with ']' to close JSON object
-            postData = postData.Remove(postData.Length - 1, 1) + "]";
-            if (!String.IsNullOrEmpty(postData2))
+            if (isUsingCortical == true)
             {
-                postData2 = postData2.Remove(postData2.Length - 1, 1) + "]";
-            }
-
-            //No Data found
-            if (postData == "]")
-            {
-                MessageBox.Show("No data could be obtained using the search parameters!", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
-                List<object> newArgs = new List<object>();
-                newArgs.Add("Results:");
-                newArgs.Add(true);
-                e.Result = newArgs;
-                return;
-            }
-
-            //System.IO.File.WriteAllText(@"C:\\Users\\brahamj\\Downloads\\jsonPost.txt", postData);
-            //postData = System.IO.File.ReadAllText(@"C:\\Users\\brahamj\\Downloads\\jsonPost.txt");
-
-            //API Request to cortical.io to compare text taken from SharePoint with a keyword the user provided
-            WebRequest webRequest = WebRequest.Create("http://api.cortical.io:80/rest/compare/bulk?retina_name=en_associative");
-            webRequest.Method = "POST";
-            webRequest.Headers["api-key"] = "bb355cc0-5873-11e8-9172-3ff24e827f76";
-            webRequest.ContentType = "application/json";
-            //Send request with postData string as the body
-            using (var streamWriter = new StreamWriter(webRequest.GetRequestStream()))
-            {
-                streamWriter.Write(postData);
-                streamWriter.Flush();
-                streamWriter.Close();
-            }
-            string result = "";
-            string result2 = "";
-            //Recieve response from cortical.io API
-            try
-            {
-                WebResponse webResp = webRequest.GetResponse();
-                using (var streamReader = new StreamReader(webResp.GetResponseStream()))
+                //Removes trailing ',' and replaces with ']' to close JSON object
+                postData = postData.Remove(postData.Length - 1, 1) + "]";
+                if (!String.IsNullOrEmpty(postData2))
                 {
-                    result = streamReader.ReadToEnd();
+                    postData2 = postData2.Remove(postData2.Length - 1, 1) + "]";
                 }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("\nCannot connect to cortical.io API. Aborting!\n\nError: " + ex.Message);
-                List<object> newArgs = new List<object>();
-                newArgs.Add("Results:");
-                newArgs.Add(true);
-                e.Result = newArgs;
-                return;
-            }
-            backgroundWorker1.ReportProgress(99);
 
-            if (!String.IsNullOrEmpty(postData2))
-            {
-                webRequest = WebRequest.Create("http://api.cortical.io:80/rest/compare/bulk?retina_name=en_associative");
+                //No Data found
+                if (postData == "]")
+                {
+                    MessageBox.Show("No data could be obtained using the search parameters!", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                    List<object> newArgs = new List<object>();
+                    newArgs.Add("Results:");
+                    newArgs.Add(true);
+                    e.Result = newArgs;
+                    return;
+                }
+
+                //System.IO.File.WriteAllText(@"C:\\Users\\brahamj\\Downloads\\jsonPost.txt", postData);
+                //postData = System.IO.File.ReadAllText(@"C:\\Users\\brahamj\\Downloads\\jsonPost.txt");
+
+                //API Request to cortical.io to compare text taken from SharePoint with a keyword the user provided
+                WebRequest webRequest = WebRequest.Create("http://api.cortical.io:80/rest/compare/bulk?retina_name=en_associative");
                 webRequest.Method = "POST";
                 webRequest.Headers["api-key"] = "bb355cc0-5873-11e8-9172-3ff24e827f76";
                 webRequest.ContentType = "application/json";
                 //Send request with postData string as the body
                 using (var streamWriter = new StreamWriter(webRequest.GetRequestStream()))
                 {
-                    streamWriter.Write(postData2);
+                    streamWriter.Write(postData);
                     streamWriter.Flush();
                     streamWriter.Close();
                 }
+                string result = "";
+                string result2 = "";
                 //Recieve response from cortical.io API
                 try
                 {
                     WebResponse webResp = webRequest.GetResponse();
                     using (var streamReader = new StreamReader(webResp.GetResponseStream()))
                     {
-                        result2 = streamReader.ReadToEnd();
+                        result = streamReader.ReadToEnd();
                     }
                 }
                 catch (Exception ex)
@@ -708,86 +837,140 @@ namespace ResumeEngineV2
                     e.Result = newArgs;
                     return;
                 }
-            }
-            backgroundWorker1.ReportProgress(100);
+                backgroundWorker1.ReportProgress(99);
 
-            //Formats return string as JSON
-            dynamic jsonObj = JsonConvert.DeserializeObject<dynamic>(result);
-            dynamic jsonObj2 = null;
-            if (!String.IsNullOrEmpty(postData2))
-            {
-                jsonObj2 = JsonConvert.DeserializeObject<dynamic>(result2);
-            }
-
-            //Calculates match percent for each return object which correlates to each resume
-            List<KeyValuePair<double, int>> percentName = new List<KeyValuePair<double, int>>();
-            List<KeyValuePair<double, string>> percentLink = new List<KeyValuePair<double, string>>();
-            for (int i = 0; i < jsonObj.Count; i++)
-            {
-                double matchPercent = Math.Round((double)jsonObj[i].cosineSimilarity, 3);
-                double matchPercent2 = 0;
                 if (!String.IsNullOrEmpty(postData2))
                 {
-                    matchPercent2 = Math.Round((double)jsonObj2[i].cosineSimilarity, 3);
-
-                    if (matchPercent2 <= 0.1)
+                    webRequest = WebRequest.Create("http://api.cortical.io:80/rest/compare/bulk?retina_name=en_associative");
+                    webRequest.Method = "POST";
+                    webRequest.Headers["api-key"] = "bb355cc0-5873-11e8-9172-3ff24e827f76";
+                    webRequest.ContentType = "application/json";
+                    //Send request with postData string as the body
+                    using (var streamWriter = new StreamWriter(webRequest.GetRequestStream()))
                     {
-                        matchPercent2 = 0;
+                        streamWriter.Write(postData2);
+                        streamWriter.Flush();
+                        streamWriter.Close();
+                    }
+                    //Recieve response from cortical.io API
+                    try
+                    {
+                        WebResponse webResp = webRequest.GetResponse();
+                        using (var streamReader = new StreamReader(webResp.GetResponseStream()))
+                        {
+                            result2 = streamReader.ReadToEnd();
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show("\nCannot connect to cortical.io API. Aborting!\n\nError: " + ex.Message);
+                        List<object> newArgs = new List<object>();
+                        newArgs.Add("Results:");
+                        newArgs.Add(true);
+                        e.Result = newArgs;
+                        return;
+                    }
+                }
+                backgroundWorker1.ReportProgress(100);
+
+                //Formats return string as JSON
+                dynamic jsonObj = JsonConvert.DeserializeObject<dynamic>(result);
+                dynamic jsonObj2 = null;
+                if (!String.IsNullOrEmpty(postData2))
+                {
+                    jsonObj2 = JsonConvert.DeserializeObject<dynamic>(result2);
+                }
+
+                //Calculates match percent for each return object which correlates to each resume
+                List<KeyValuePair<double, int>> percentName = new List<KeyValuePair<double, int>>();
+                List<KeyValuePair<double, string>> percentLink = new List<KeyValuePair<double, string>>();
+                for (int i = 0; i < jsonObj.Count; i++)
+                {
+                    double matchPercent = Math.Round((double)jsonObj[i].cosineSimilarity, 3);
+                    double matchPercent2 = 0;
+                    if (!String.IsNullOrEmpty(postData2))
+                    {
+                        matchPercent2 = Math.Round((double)jsonObj2[i].cosineSimilarity, 3);
+
+                        if (matchPercent2 <= 0.1)
+                        {
+                            matchPercent2 = 0;
+                        }
+                        else
+                        {
+                            matchPercent2 = Math.Round(((Math.Pow(Math.Log10(1 / matchPercent2), 3.55) * -1) + 1) * 100, 2);
+                        }
+                    }
+
+                    if (matchPercent <= 0.1)
+                    {
+                        matchPercent = 0;
                     }
                     else
                     {
-                        matchPercent2 = Math.Round(((Math.Pow(Math.Log10(1 / matchPercent2), 3.55) * -1) + 1) * 100, 2);
+                        matchPercent = Math.Round(((Math.Pow(Math.Log10(1 / matchPercent), 3.55) * -1) + 1) * 100, 2);
                     }
+
+                    //If multiple keywords, get weighted percent
+                    if (!String.IsNullOrEmpty(postData2))
+                    {
+                        double firstWeight = (double)(Int32.Parse(weight.Replace("%", ""))) / 100;
+                        double secondWeight = 1 - firstWeight;
+
+                        matchPercent = (((matchPercent / 100) * firstWeight) + ((matchPercent2 / 100) * secondWeight)) * 100;
+                    }
+                    percentLink.Add(new KeyValuePair<double, string>(matchPercent, links[i]));
+                    percentName.Add(new KeyValuePair<double, int>(matchPercent, i));
                 }
 
-                if (matchPercent <= 0.1)
+                //Order from greatest to least match percent
+                percentName = percentName.OrderByDescending(x => x.Key).ToList();
+                percentLink = percentLink.OrderByDescending(x => x.Key).ToList();
+
+                List<string> keyList = new List<string>();
+                //Generates response to populate gridView
+                for (int i = 0; i < percentName.Count(); i++)
                 {
-                    matchPercent = 0;
+                    namesOrdered.Add(names[percentName[i].Value]);
+                    linksOrdered.Add(percentLink[i].Value);
+                    keyList.Add(percentName[i].Key + "%");
+                }
+
+                //Sends finished data to e.Result so when backgroundWorker1 is completed it can access the data and correctly update the fields
+                //This has to be done as you cannot update the fields inside backgroundWorker thread
+                List<object> returnArgs = new List<object>();
+                if (!String.IsNullOrEmpty(postData2))
+                {
+                    returnArgs.Add("Results for \"" + (string)arguments[3] + "\" and \"" + (string)arguments[6] + "\":\n(You can double click any row to view the resume)");
                 }
                 else
                 {
-                    matchPercent = Math.Round(((Math.Pow(Math.Log10(1 / matchPercent), 3.55) * -1) + 1) * 100, 2);
+                    returnArgs.Add("Results for \"" + (string)arguments[3] + "\":\n(You can double click any row to view the resume)");
                 }
-
-                //If multiple keywords, get weighted percent
-                if (!String.IsNullOrEmpty(postData2))
-                {
-                    double firstWeight = (double)(Int32.Parse(weight.Replace("%", "")))/100;
-                    double secondWeight = 1 - firstWeight;
-
-                    matchPercent = (((matchPercent / 100) * firstWeight) + ((matchPercent2 / 100) * secondWeight)) * 100;
-                }
-                percentLink.Add(new KeyValuePair<double, string>(matchPercent, links[i]));
-                percentName.Add(new KeyValuePair<double, int>(matchPercent, i));
-            }
-
-            //Order from greatest to least match percent
-            percentName = percentName.OrderByDescending(x => x.Key).ToList();
-            percentLink = percentLink.OrderByDescending(x => x.Key).ToList();
-
-            List<string> keyList = new List<string>();
-            //Generates response to populate gridView
-            for (int i = 0; i < percentName.Count(); i++)
-            {
-                namesOrdered.Add(names[percentName[i].Value]);
-                linksOrdered.Add(percentLink[i].Value);
-                keyList.Add(percentName[i].Key + "%");
-            }
-
-            //Sends finished data to e.Result so when backgroundWorker1 is completed it can access the data and correctly update the fields
-            //This has to be done as you cannot update the fields inside backgroundWorker thread
-            List<object> returnArgs = new List<object>();
-            if (!String.IsNullOrEmpty(postData2))
-            {
-                returnArgs.Add("Results for \"" + (string)arguments[3] + "\" and \"" + (string)arguments[6] + "\":\n(You can double click any row to view the resume)");
+                returnArgs.Add(false);
+                returnArgs.Add(keyList);
+                e.Result = returnArgs;
             }
             else
             {
+                matchScoreName = matchScoreName.OrderByDescending(x => x.Key).ToList();
+                matchScoreLink = matchScoreLink.OrderByDescending(x => x.Key).ToList();
+
+                List<string> keyList = new List<string>();
+                //Generates response to populate gridView
+                for (int i = 0; i < matchScoreName.Count(); i++)
+                {
+                    namesOrdered.Add(names[matchScoreName[i].Value]);
+                    linksOrdered.Add(matchScoreLink[i].Value);
+                    keyList.Add(matchScoreName[i].Key * 10 + "%");
+                }
+
+                List<object> returnArgs = new List<object>();
                 returnArgs.Add("Results for \"" + (string)arguments[3] + "\":\n(You can double click any row to view the resume)");
+                returnArgs.Add(false);
+                returnArgs.Add(keyList);
+                e.Result = returnArgs;
             }
-            returnArgs.Add(false);
-            returnArgs.Add(keyList);
-            e.Result = returnArgs;
         }
 
         void backgroundWorker1_ProgressChanged(object sender, ProgressChangedEventArgs e)

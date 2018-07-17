@@ -274,6 +274,13 @@ namespace ResumeEngineV2
 
         private void btnKeywordSubmit_Click(object sender, EventArgs e)
         {
+            //Library of keywords
+            string[] energyLib = { "Energy", "Bruce", "Cogeneration", "Fabrication", "Gas", "Module", "Modules", "Nuclear", "Oil", "OPG", "Ontario Power Generation", "Pipeline", "Pipelines", "Utilities" };
+            string[] infrastructureLib = { "Infrastructure", "Airport", "Airports", "Asphalt", "Bridge", "Bridges", "Hydroelectric", "Rail", "Road", "Roads", "Transit", "Tunnel", "Tunnels", "Water Treatment" };
+            string[] miningLib = { "Mining", "Fabrication", "Mechanical Works", "Mine Site Development", "Module", "Modules", "Overburden Removal", "Processing Facilities", "Reclamation" };
+            string[] concessionsLib = { "Concessions", "Accounting", "Bank", "Banks", "Equity Investments", "Maintenance", "Operations", "Project Financing", "Project Development", "Public Private Partnership", "P3" };
+            string[] otherLib = { "Advisor", "Boilermaker", "Buyer", "CAD", "Carpenter", "Concrete", "Contract", "Controller", "Controls", "Coordinator", "Counsel", "Craft Recruiter", "Customer Service Representative", "Designer", "Dockmaster", "Document Control", "Draftsperson", "E&I", "Electrical and Instrumentation", "EHS", "Environmental health and safety", "Electrician", "Engineer", "Environment", "Equipment", "Estimator", "Field Support", "Network Support", "Fitter", "Welder", "Foreperson", "Foreman", "Inspector", "Ironwork", "Labourer", "Lead", "Locator", "Material", "Operator", "Pavement", "PEng", "Professional Engineer", "Planner", "Plumber", "Project Design", "Purchaser", "Requisitioner", "Risk", "Scheduler", "Specialist", "Splicer", "Superintendent", "Supervisor", "Support", "Surveyor", "Technical Services", "Technician", "Turnover", "Vendor" };
+
             //Whipe global Lists
             namesOrdered.Clear();
             linksOrdered.Clear();
@@ -293,7 +300,12 @@ namespace ResumeEngineV2
             }
             else if (!int.TryParse(txtBoxExperience.Text, out int tempOut) || tempOut < 0)
             {
-                MessageBox.Show("Please enter a valid number for years of experience greater then or equal to zero! ", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                MessageBox.Show("Please enter a valid number for years of experience greater then or equal to zero!", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+            }
+            //If user enters first keyword in our lib, second keyword must also be in the lib
+            else if (lblAddTextBox.Visible == false && (energyLib.Contains(txtBoxKeyword.Text, StringComparer.OrdinalIgnoreCase) || infrastructureLib.Contains(txtBoxKeyword.Text, StringComparer.OrdinalIgnoreCase) || miningLib.Contains(txtBoxKeyword.Text, StringComparer.OrdinalIgnoreCase) || concessionsLib.Contains(txtBoxKeyword.Text, StringComparer.OrdinalIgnoreCase) || otherLib.Contains(txtBoxKeyword.Text, StringComparer.OrdinalIgnoreCase)) && (!energyLib.Contains(txtBoxSecondKeyword.Text, StringComparer.OrdinalIgnoreCase) && !infrastructureLib.Contains(txtBoxSecondKeyword.Text, StringComparer.OrdinalIgnoreCase) && !miningLib.Contains(txtBoxSecondKeyword.Text, StringComparer.OrdinalIgnoreCase) && !concessionsLib.Contains(txtBoxSecondKeyword.Text, StringComparer.OrdinalIgnoreCase) && !otherLib.Contains(txtBoxSecondKeyword.Text, StringComparer.OrdinalIgnoreCase)))
+            {
+                MessageBox.Show("Your first keyword is in our library and so the second keyword must also be in the library!", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
             }
             else
             {
@@ -475,6 +487,7 @@ namespace ResumeEngineV2
 
             //0 = energy, 1 = infrastructure, 2 = mining, 3 = conecessions, 4 = other
             int whichLib = -1;
+            int whichLib2 = -1;
 
             //Library of keywords
             string[] energyLib = { "Energy", "Bruce", "Cogeneration", "Fabrication", "Gas", "Module", "Modules", "Nuclear", "Oil", "OPG", "Ontario Power Generation", "Pipeline", "Pipelines", "Utilities" };
@@ -484,44 +497,53 @@ namespace ResumeEngineV2
             string[] otherLib = { "Advisor", "Boilermaker", "Buyer", "CAD", "Carpenter", "Concrete", "Contract", "Controller", "Controls", "Coordinator", "Counsel", "Craft Recruiter", "Customer Service Representative", "Designer", "Dockmaster", "Document Control", "Draftsperson", "E&I", "Electrical and Instrumentation", "EHS", "Environmental health and safety", "Electrician", "Engineer", "Environment", "Equipment", "Estimator", "Field Support", "Network Support", "Fitter", "Welder", "Foreperson", "Foreman", "Inspector", "Ironwork", "Labourer", "Lead", "Locator", "Material", "Operator", "Pavement", "PEng", "Professional Engineer", "Planner", "Plumber", "Project Design", "Purchaser", "Requisitioner", "Risk", "Scheduler", "Specialist", "Splicer", "Superintendent", "Supervisor", "Support", "Surveyor", "Technical Services", "Technician", "Turnover", "Vendor" };
 
             //Check if keyword matches any keywords in library and thus we are not using cortical.io
-            for (int i = 0; i < energyLib.Length; i++)
+            if (energyLib.Contains((string)arguments[3], StringComparer.OrdinalIgnoreCase))
             {
-                if (String.Equals((string)arguments[3], energyLib[i], StringComparison.OrdinalIgnoreCase))
-                {
-                    whichLib = 0;
-                    isUsingCortical = false;
-                }
+                whichLib = 0;
+                isUsingCortical = false;
             }
-            for (int i = 0; i < infrastructureLib.Length; i++)
+            else if (infrastructureLib.Contains((string)arguments[3], StringComparer.OrdinalIgnoreCase))
             {
-                if (String.Equals((string)arguments[3], infrastructureLib[i], StringComparison.OrdinalIgnoreCase))
-                {
-                    whichLib = 1;
-                    isUsingCortical = false;
-                }
+                whichLib = 1;
+                isUsingCortical = false;
             }
-            for (int i = 0; i < miningLib.Length; i++)
+            else if (miningLib.Contains((string)arguments[3], StringComparer.OrdinalIgnoreCase))
             {
-                if (String.Equals((string)arguments[3], miningLib[i], StringComparison.OrdinalIgnoreCase))
-                {
-                    whichLib = 2;
-                    isUsingCortical = false;
-                }
+                whichLib = 2;
+                isUsingCortical = false;
             }
-            for (int i = 0; i < concessionsLib.Length; i++)
+            else if (concessionsLib.Contains((string)arguments[3], StringComparer.OrdinalIgnoreCase))
             {
-                if (String.Equals((string)arguments[3], concessionsLib[i], StringComparison.OrdinalIgnoreCase))
-                {
-                    whichLib = 3;
-                    isUsingCortical = false;
-                }
+                whichLib = 3;
+                isUsingCortical = false;
             }
-            for (int i = 0; i < otherLib.Length; i++)
+            else if (otherLib.Contains((string)arguments[3], StringComparer.OrdinalIgnoreCase))
             {
-                if (String.Equals((string)arguments[3], otherLib[i], StringComparison.OrdinalIgnoreCase))
+                whichLib = 4;
+                isUsingCortical = false;
+            }
+
+            if (!String.IsNullOrEmpty(postData2))
+            {
+                if (energyLib.Contains((string)arguments[6], StringComparer.OrdinalIgnoreCase))
                 {
-                    whichLib = 4;
-                    isUsingCortical = false;
+                    whichLib2 = 0;
+                }
+                else if (infrastructureLib.Contains((string)arguments[6], StringComparer.OrdinalIgnoreCase))
+                {
+                    whichLib2 = 1;
+                }
+                else if (miningLib.Contains((string)arguments[6], StringComparer.OrdinalIgnoreCase))
+                {
+                    whichLib2 = 2;
+                }
+                else if (concessionsLib.Contains((string)arguments[6], StringComparer.OrdinalIgnoreCase))
+                {
+                    whichLib2 = 3;
+                }
+                else if (otherLib.Contains((string)arguments[6], StringComparer.OrdinalIgnoreCase))
+                {
+                    whichLib2 = 4;
                 }
             }
 
@@ -576,7 +598,7 @@ namespace ResumeEngineV2
                 List<Char> builder = new List<char>();
                 //Used to fix if there are multiple newlines in a row
                 bool isNewLine = true;
-
+                
                 //Remove special characters which would need to be escaped for JSON and creates new string using builder var
                 for (int i = 0; i < convText.Length; i++)
                 {
@@ -637,7 +659,7 @@ namespace ResumeEngineV2
                     if (inExperience == true && int.TryParse(word, out tempYear))
                     {
                         //If the number is greater then 1960 and less then the current year, then if this is the first number found or the number is less then the current smallest number, store it
-                        if (tempYear > 1960 && tempYear < DateTime.Now.Year - lowestYear && (lowestYear == -1 || lowestYear > tempYear))
+                        if (tempYear > 1960 && tempYear < DateTime.Now.Year && (lowestYear == -1 || lowestYear > tempYear))
                         {
                             lowestYear = tempYear;
                         }
@@ -648,7 +670,7 @@ namespace ResumeEngineV2
                         break;
                     }
                     //If come across education sections or employment section start searching for years of experience
-                    else if (String.Equals(word, "Experience", StringComparison.OrdinalIgnoreCase) || String.Equals(word, "Employment", StringComparison.OrdinalIgnoreCase))
+                    else if (String.Equals(word, "Experience", StringComparison.OrdinalIgnoreCase) || String.Equals(word, "Employment", StringComparison.OrdinalIgnoreCase) || String.Equals(word, "Employ", StringComparison.OrdinalIgnoreCase))
                     {
                         inExperience = true;
                     }
@@ -673,93 +695,165 @@ namespace ResumeEngineV2
                     {
                         int numExactMatches = 0;
                         int numCategoryMatches = 0;
+
+                        int numExactMatchesSecond = 0;
+                        int numCategoryMatchesSecond = 0;
                         //Check occurances of keywords in resume
                         foreach (string word in newConvText.Split(' '))
                         {
                             if (whichLib == 0)
                             {
-                                for (int i = 1; i < energyLib.Length; i++)
+                                if (energyLib.Contains(word, StringComparer.OrdinalIgnoreCase))
                                 {
-                                    if (String.Equals(word, energyLib[i], StringComparison.OrdinalIgnoreCase))
+                                    if (String.Equals((string)arguments[3], word, StringComparison.OrdinalIgnoreCase))
                                     {
-                                        if (String.Equals((string)arguments[3], energyLib[i], StringComparison.OrdinalIgnoreCase))
-                                        {
-                                            numExactMatches++;
-                                        }
-                                        else
-                                        {
-                                            numCategoryMatches++;
-                                        }
+                                        numExactMatches++;
+                                    }
+                                    else
+                                    {
+                                        numCategoryMatches++;
                                     }
                                 }
                             }
                             else if (whichLib == 1)
                             {
-                                for (int i = 1; i < infrastructureLib.Length; i++)
+                                if (infrastructureLib.Contains(word, StringComparer.OrdinalIgnoreCase))
                                 {
-                                    if (String.Equals(word, infrastructureLib[i], StringComparison.OrdinalIgnoreCase))
+                                    if (String.Equals((string)arguments[3], word, StringComparison.OrdinalIgnoreCase))
                                     {
-                                        if (String.Equals((string)arguments[3], infrastructureLib[i], StringComparison.OrdinalIgnoreCase))
-                                        {
-                                            numExactMatches++;
-                                        }
-                                        else
-                                        {
-                                            numCategoryMatches++;
-                                        }
+                                        numExactMatches++;
+                                    }
+                                    else
+                                    {
+                                        numCategoryMatches++;
                                     }
                                 }
                             }
                             else if (whichLib == 2)
                             {
-                                for (int i = 1; i < miningLib.Length; i++)
+                                if (miningLib.Contains(word, StringComparer.OrdinalIgnoreCase))
                                 {
-                                    if (String.Equals(word, miningLib[i], StringComparison.OrdinalIgnoreCase))
+                                    if (String.Equals((string)arguments[3], word, StringComparison.OrdinalIgnoreCase))
                                     {
-                                        if (String.Equals((string)arguments[3], miningLib[i], StringComparison.OrdinalIgnoreCase))
-                                        {
-                                            numExactMatches++;
-                                        }
-                                        else
-                                        {
-                                            numCategoryMatches++;
-                                        }
+                                        numExactMatches++;
+                                    }
+                                    else
+                                    {
+                                        numCategoryMatches++;
                                     }
                                 }
                             }
                             else if (whichLib == 3)
                             {
-                                for (int i = 1; i < concessionsLib.Length; i++)
+                                if (concessionsLib.Contains(word, StringComparer.OrdinalIgnoreCase))
                                 {
-                                    if (String.Equals(word, concessionsLib[i], StringComparison.OrdinalIgnoreCase))
+                                    if (String.Equals((string)arguments[3], word, StringComparison.OrdinalIgnoreCase))
                                     {
-                                        if (String.Equals((string)arguments[3], concessionsLib[i], StringComparison.OrdinalIgnoreCase))
-                                        {
-                                            numExactMatches++;
-                                        }
-                                        else
-                                        {
-                                            numCategoryMatches++;
-                                        }
+                                        numExactMatches++;
+                                    }
+                                    else
+                                    {
+                                        numCategoryMatches++;
                                     }
                                 }
                             }
                             else if (whichLib == 4)
                             {
-                                for (int i = 1; i < otherLib.Length; i++)
+                                if (otherLib.Contains(word, StringComparer.OrdinalIgnoreCase))
                                 {
-                                    if (String.Equals(word, otherLib[i], StringComparison.OrdinalIgnoreCase))
+                                    if (String.Equals((string)arguments[3], word, StringComparison.OrdinalIgnoreCase))
                                     {
-                                        if (String.Equals((string)arguments[3], otherLib[i], StringComparison.OrdinalIgnoreCase))
+                                        numExactMatches++;
+                                    }
+                                }
+                            }
+
+                            if (!String.IsNullOrEmpty(postData2))
+                            {
+                                if (whichLib2 == 0)
+                                {
+                                    if (energyLib.Contains(word, StringComparer.OrdinalIgnoreCase))
+                                    {
+                                        if (String.Equals((string)arguments[6], word, StringComparison.OrdinalIgnoreCase))
                                         {
-                                            numExactMatches++;
+                                            numExactMatchesSecond++;
+                                        }
+                                        else
+                                        {
+                                            numCategoryMatchesSecond++;
+                                        }
+                                    }
+                                }
+                                else if (whichLib2 == 1)
+                                {
+                                    if (infrastructureLib.Contains(word, StringComparer.OrdinalIgnoreCase))
+                                    {
+                                        if (String.Equals((string)arguments[6], word, StringComparison.OrdinalIgnoreCase))
+                                        {
+                                            numExactMatchesSecond++;
+                                        }
+                                        else
+                                        {
+                                            numCategoryMatchesSecond++;
+                                        }
+                                    }
+                                }
+                                else if (whichLib2 == 2)
+                                {
+                                    if (miningLib.Contains(word, StringComparer.OrdinalIgnoreCase))
+                                    {
+                                        if (String.Equals((string)arguments[6], word, StringComparison.OrdinalIgnoreCase))
+                                        {
+                                            numExactMatchesSecond++;
+                                        }
+                                        else
+                                        {
+                                            numCategoryMatchesSecond++;
+                                        }
+                                    }
+                                }
+                                else if (whichLib2 == 3)
+                                {
+                                    if (concessionsLib.Contains(word, StringComparer.OrdinalIgnoreCase))
+                                    {
+                                        if (String.Equals((string)arguments[6], word, StringComparison.OrdinalIgnoreCase))
+                                        {
+                                            numExactMatchesSecond++;
+                                        }
+                                        else
+                                        {
+                                            numCategoryMatchesSecond++;
+                                        }
+                                    }
+                                }
+                                else if (whichLib2 == 4)
+                                {
+                                    if (otherLib.Contains(word, StringComparer.OrdinalIgnoreCase))
+                                    {
+                                        if (String.Equals((string)arguments[6], word, StringComparison.OrdinalIgnoreCase))
+                                        {
+                                            numExactMatchesSecond++;
                                         }
                                     }
                                 }
                             }
                         }
-                        matchScoreLink.Add(new KeyValuePair<double, string>(numExactMatches + (double)numCategoryMatches / 10, links[matchScoreCounter]));
-                        matchScoreName.Add(new KeyValuePair<double, int>(numExactMatches + (double)numCategoryMatches / 10, matchScoreCounter++));
+                        double totalMatchScore = 0;
+                        if (!String.IsNullOrEmpty(postData2))
+                        {
+                            double firstWeight = (double)(Int32.Parse(weight.Replace("%", ""))) / 100;
+                            double secondWeight = 1 - firstWeight;
+
+                            double matchPercent = (numExactMatches + ((double)numCategoryMatches / 5)) * 10;
+                            double matchPercent2 = (numExactMatchesSecond + ((double)numCategoryMatchesSecond / 5)) * 10;
+                            totalMatchScore = (((matchPercent / 100) * firstWeight) + ((matchPercent2 / 100) * secondWeight)) * 100;  
+                        }
+                        else
+                        {
+                            totalMatchScore = (numExactMatches + ((double)numCategoryMatches / 5)) * 10;
+                        }
+                        matchScoreLink.Add(new KeyValuePair<double, string>(totalMatchScore, links[matchScoreCounter]));
+                        matchScoreName.Add(new KeyValuePair<double, int>(totalMatchScore, matchScoreCounter++));
                     }
                     else
                     {
@@ -953,6 +1047,8 @@ namespace ResumeEngineV2
             }
             else
             {
+                backgroundWorker1.ReportProgress(99);
+
                 matchScoreName = matchScoreName.OrderByDescending(x => x.Key).ToList();
                 matchScoreLink = matchScoreLink.OrderByDescending(x => x.Key).ToList();
 
@@ -962,8 +1058,10 @@ namespace ResumeEngineV2
                 {
                     namesOrdered.Add(names[matchScoreName[i].Value]);
                     linksOrdered.Add(matchScoreLink[i].Value);
-                    keyList.Add(matchScoreName[i].Key * 10 + "%");
+                    keyList.Add(matchScoreName[i].Key + "%");
                 }
+
+                backgroundWorker1.ReportProgress(100);
 
                 List<object> returnArgs = new List<object>();
                 returnArgs.Add("Results for \"" + (string)arguments[3] + "\":\n(You can double click any row to view the resume)");

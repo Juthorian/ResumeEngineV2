@@ -33,6 +33,9 @@ namespace ResumeEngineV2
             //Overlays progress bar ontop of gridview where results are displayed
             progressBar1.BringToFront();
 
+            //Set combo box to default value, 100%
+            cmbWeight.SelectedIndex = 9;
+
             //Add tool tip to + label
             ToolTip tt = new ToolTip();
             tt.SetToolTip(lblAddTextBox, "Click to add another keyword field");
@@ -238,7 +241,12 @@ namespace ResumeEngineV2
             textBoxUsername.ForeColor = SystemColors.ButtonShadow;
             textBoxPassword.Text = "";
             lblResults.Text = "Results:";
-            cmbWeight.Text = "100%";
+            cmbWeight.ResetText();
+            if (cmbWeight.Enabled == true)
+            {
+                cmbWeight.Items.Insert(9, "100%");
+            }
+            cmbWeight.SelectedIndex = 9;
             txtBoxExperience.Text = "0";
 
             //Only show login fields
@@ -293,10 +301,6 @@ namespace ResumeEngineV2
             else if (lblAddTextBox.Visible == false && (txtBoxSecondKeyword.Text == "" || txtBoxSecondKeyword.Text.Contains("\"") || txtBoxSecondKeyword.Text.Contains("\\")))
             {
                 MessageBox.Show("Please enter a valid keyword in second text field!\n\nKeyword can not be empty\nKeyword can not contain the following characters:\n\" (double quotation mark) or \\ (Backslash)", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
-            }
-            else if (cmbWeight.Text == "Weight")
-            {
-                MessageBox.Show("Please select a weight for the first keyword field", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
             }
             else if (!int.TryParse(txtBoxExperience.Text, out int tempOut) || tempOut < 0)
             {
@@ -844,13 +848,13 @@ namespace ResumeEngineV2
                             double firstWeight = (double)(Int32.Parse(weight.Replace("%", ""))) / 100;
                             double secondWeight = 1 - firstWeight;
 
-                            double matchPercent = (numExactMatches + ((double)numCategoryMatches / 5)) * 10;
-                            double matchPercent2 = (numExactMatchesSecond + ((double)numCategoryMatchesSecond / 5)) * 10;
+                            double matchPercent = (numExactMatches + ((double)numCategoryMatches / 10)) * 10;
+                            double matchPercent2 = (numExactMatchesSecond + ((double)numCategoryMatchesSecond / 10)) * 10;
                             totalMatchScore = (((matchPercent / 100) * firstWeight) + ((matchPercent2 / 100) * secondWeight)) * 100;  
                         }
                         else
                         {
-                            totalMatchScore = (numExactMatches + ((double)numCategoryMatches / 5)) * 10;
+                            totalMatchScore = (numExactMatches + ((double)numCategoryMatches / 10)) * 10;
                         }
                         matchScoreLink.Add(new KeyValuePair<double, string>(totalMatchScore, links[matchScoreCounter]));
                         matchScoreName.Add(new KeyValuePair<double, int>(totalMatchScore, matchScoreCounter++));
@@ -1102,10 +1106,6 @@ namespace ResumeEngineV2
             btnKeywordSubmit.Enabled = true;
             txtBoxKeyword.Enabled = true;
             btnLogout.Enabled = true;
-            if (cmbWeight.Text != "100%")
-            {
-                cmbWeight.Enabled = true;
-            }
             if (lblAddTextBox.Visible == true)
             {
                 lblAddTextBox.Enabled = true;
@@ -1114,6 +1114,7 @@ namespace ResumeEngineV2
             {
                 lblMinusTextBox.Enabled = true;
                 txtBoxSecondKeyword.Enabled = true;
+                cmbWeight.Enabled = true;
             }
             txtBoxExperience.Enabled = true;
 
@@ -1203,7 +1204,9 @@ namespace ResumeEngineV2
             txtBoxSecondKeyword.TabIndex = 4;
             this.Controls.Add(txtBoxSecondKeyword);
 
-            cmbWeight.Text = "Weight";
+            cmbWeight.Items.RemoveAt(9);
+
+            cmbWeight.SelectedIndex = 4;
             cmbWeight.Enabled = true;
         }
 
@@ -1218,7 +1221,9 @@ namespace ResumeEngineV2
                 lblMinusTextBox.Dispose();
                 txtBoxSecondKeyword.Dispose();
 
-                cmbWeight.Text = "100%";
+                cmbWeight.Items.Insert(9, "100%");
+                cmbWeight.ResetText();
+                cmbWeight.SelectedIndex = 9;
                 cmbWeight.Enabled = false;
             }
             else

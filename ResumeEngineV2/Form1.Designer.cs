@@ -226,6 +226,8 @@
             // 
             // cmbWeight
             // 
+            this.cmbWeight.DisplayMember = "1";
+            this.cmbWeight.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cmbWeight.Enabled = false;
             this.cmbWeight.FormattingEnabled = true;
             this.cmbWeight.ItemHeight = 13;
@@ -238,12 +240,13 @@
             "40%",
             "30%",
             "20%",
-            "10%"});
+            "10%",
+            "100%"});
             this.cmbWeight.Location = new System.Drawing.Point(220, 60);
             this.cmbWeight.Name = "cmbWeight";
             this.cmbWeight.Size = new System.Drawing.Size(58, 21);
             this.cmbWeight.TabIndex = 5;
-            this.cmbWeight.Text = "100%";
+            this.cmbWeight.ValueMember = "1";
             // 
             // txtBoxExperience
             // 

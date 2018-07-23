@@ -772,6 +772,7 @@ namespace ResumeEngineV2
                                 }
                             }
 
+                            //Do it again for second keyword if the field exists
                             if (!String.IsNullOrEmpty(postData2))
                             {
                                 if (whichLib2 == 0)
@@ -1053,6 +1054,7 @@ namespace ResumeEngineV2
             {
                 backgroundWorker1.ReportProgress(99);
 
+                //Order from greatest to least match percent
                 matchScoreName = matchScoreName.OrderByDescending(x => x.Key).ToList();
                 matchScoreLink = matchScoreLink.OrderByDescending(x => x.Key).ToList();
 
@@ -1067,8 +1069,17 @@ namespace ResumeEngineV2
 
                 backgroundWorker1.ReportProgress(100);
 
+                //Sends finished data to e.Result so when backgroundWorker1 is completed it can access the data and correctly update the fields
+                //This has to be done as you cannot update the fields inside backgroundWorker thread
                 List<object> returnArgs = new List<object>();
-                returnArgs.Add("Results for \"" + (string)arguments[3] + "\":\n(You can double click any row to view the resume)");
+                if (!String.IsNullOrEmpty(postData2))
+                {
+                    returnArgs.Add("Results for \"" + (string)arguments[3] + "\" and \"" + (string)arguments[6] + "\":\n(You can double click any row to view the resume)");
+                }
+                else
+                {
+                    returnArgs.Add("Results for \"" + (string)arguments[3] + "\":\n(You can double click any row to view the resume)");
+                }
                 returnArgs.Add(false);
                 returnArgs.Add(keyList);
                 e.Result = returnArgs;

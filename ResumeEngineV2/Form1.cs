@@ -460,6 +460,8 @@ namespace ResumeEngineV2
 
         private void backgroundWoker1_DoWork(object sender, DoWorkEventArgs e)
         {
+            var watch = System.Diagnostics.Stopwatch.StartNew();
+
             List<object> arguments = e.Argument as List<object>;
             int totalCount = (int)arguments[5];
             int count = 0;
@@ -467,12 +469,27 @@ namespace ResumeEngineV2
             List<string> links = new List<string>();
             Web web = (Web)arguments[1];
             string weight = (string)arguments[7];
-            string postData = "[";
-            string postData2 = "";
+
+            //Arrays holding data to be sent to cortical.io api
+            string[] postData = new string[10];
+            for (int i = 0; i < postData.Length; i++)
+            {
+                postData[i] = "[";
+            }
+            string[] postData2 = new string[10];
+            for (int i = 0; i < postData2.Length; i++)
+            {
+                postData2[i] = "";
+            }
             if (!String.IsNullOrEmpty((string)arguments[6]))
             {
-                postData2 = "[";
+                for (int i = 0; i < postData2.Length; i++)
+                {
+                    postData2[i] = "[";
+                }
             }
+            int postDataCount = 0;
+
             bool isUsingCortical = true;
             List<KeyValuePair<double, int>> matchScoreName = new List<KeyValuePair<double, int>>();
             List<KeyValuePair<double, string>> matchScoreLink = new List<KeyValuePair<double, string>>();
@@ -527,7 +544,7 @@ namespace ResumeEngineV2
                 isUsingCortical = false;
             }
 
-            if (!String.IsNullOrEmpty(postData2))
+            if (!String.IsNullOrEmpty(postData2[0]))
             {
                 if (energyLib.Contains((string)arguments[6], StringComparer.OrdinalIgnoreCase))
                 {
@@ -551,106 +568,128 @@ namespace ResumeEngineV2
                 }
             }
 
+            FileCollection fc = (FileCollection)arguments[0];
+            int numFiles = fc.Count;
+
             //Loops through each file
             foreach (var item in (FileCollection)arguments[0])
             {
                 count++;
                 string fileName = item.Name;
+                string newConvText = "";
 
-                var filePath = web.ServerRelativeUrl + "/Shared%20Documents/Original/" + fileName;
-                //var filePathTxt = web.ServerRelativeUrl + "/Shared%20Documents/Text/" + fileName + ".txt";
-                FileInformation fileInformation = Microsoft.SharePoint.Client.File.OpenBinaryDirect((ClientContext)arguments[2], filePath);
-                string ext = System.IO.Path.GetExtension(fileName);
-                string convText = "";
-
-                //Convert file into text
-                if (ext == ".pdf")
+                if (System.IO.File.Exists("textResumes/" + fileName + ".txt") == false)
                 {
-                    //Using ITextSharp pdf library
-                    using (PdfReader reader = new PdfReader(fileInformation.Stream))
-                    {
-                        StringBuilder textBuild = new StringBuilder();
-                        for (int i = 1; i <= reader.NumberOfPages; i++)
-                        {
-                            textBuild.Append(PdfTextExtractor.GetTextFromPage(reader, i));
-                        }
-                        convText = textBuild.ToString();
-                    }
-                }
-                else
-                {
-                    //Using Spire office library instead of interop because interop is slow and Microsoft does not currently recommend,
-                    //and does not support, Automation of Microsoft Office applications from any unattended non-interactive client application or component
-                    using (var stream1 = new MemoryStream())
-                    {
-                        MemoryStream txtStream = new MemoryStream();
-                        Document document = new Document();
-                        fileInformation.Stream.CopyTo(stream1);
-                        document.LoadFromStream(stream1, FileFormat.Auto);
-                        document.SaveToStream(txtStream, FileFormat.Txt);
-                        txtStream.Position = 0;
+                    var filePath = web.ServerRelativeUrl + "/Shared%20Documents/Original/" + fileName;
+                    //var filePathTxt = web.ServerRelativeUrl + "/Shared%20Documents/Text/" + fileName + ".txt";
+                    FileInformation fileInformation = Microsoft.SharePoint.Client.File.OpenBinaryDirect((ClientContext)arguments[2], filePath);
+                    string ext = System.IO.Path.GetExtension(fileName);
+                    string convText = "";
 
-                        StreamReader reader = new StreamReader(txtStream);
-                        string readText = reader.ReadToEnd();
-
-                        //Remove watermark for spire
-                        readText = readText.Replace("Evaluation Warning: The document was created with Spire.Doc for .NET.", "");
-                        convText = readText;
-                    }
-                }
-
-                List<Char> builder = new List<char>();
-                //Used to fix if there are multiple newlines in a row
-                bool isNewLine = true;
-                
-                //Remove special characters which would need to be escaped for JSON and creates new string using builder var
-                for (int i = 0; i < convText.Length; i++)
-                {
-                    if (convText[i] == '\t')
+                    //Convert file into text
+                    try
                     {
-                        builder.Add(' ');
-                    }
-                    else if (convText[i] == char.MinValue)
-                    {
-                        builder.Add(' ');
-                    }
-                    else if (convText[i] == '\\')
-                    {
-                        builder.Add('\\');
-                        builder.Add('\\');
-                    }
-                    else if ((convText[i] == '\n' || convText[i] == '\r') && isNewLine == false)
-                    {
-                        if (convText[i - 1] == '.' || convText[i - 1] == ':' || convText[i - 1] == ',')
+                        if (ext == ".pdf")
                         {
-                            builder.Add(' ');
-                        }
-                        else if (convText[i - 1] != ' ')
-                        {
-                            builder.Add('.');
-                            builder.Add(' ');
-                        }
-                        isNewLine = true;
-                    }
-                    else if (convText[i] != '\n' && convText[i] != '\r')
-                    {
-                        isNewLine = false;
-                        //If '"' is already escaped ignore
-                        if (convText[i] == '"' && convText[i - 1] != '\\')
-                        {
-                            //Adds a single '\' before the '"'
-                            builder.Add('\\');
-                            builder.Add('"');
+                            //Using ITextSharp pdf library
+                            using (PdfReader reader = new PdfReader(fileInformation.Stream))
+                            {
+                                StringBuilder textBuild = new StringBuilder();
+                                for (int i = 1; i <= reader.NumberOfPages; i++)
+                                {
+                                    textBuild.Append(PdfTextExtractor.GetTextFromPage(reader, i));
+                                }
+                                convText = textBuild.ToString();
+                            }
                         }
                         else
                         {
-                            builder.Add(convText[i]);
+                            //Using Spire office library instead of interop because interop is slow and Microsoft does not currently recommend,
+                            //and does not support, Automation of Microsoft Office applications from any unattended non-interactive client application or component
+                            using (var stream1 = new MemoryStream())
+                            {
+                                MemoryStream txtStream = new MemoryStream();
+                                Document document = new Document();
+                                fileInformation.Stream.CopyTo(stream1);
+                                document.LoadFromStream(stream1, FileFormat.Auto);
+                                document.SaveToStream(txtStream, FileFormat.Txt);
+                                txtStream.Position = 0;
+
+                                StreamReader reader = new StreamReader(txtStream);
+                                string readText = reader.ReadToEnd();
+
+                                //Remove watermark for spire
+                                readText = readText.Replace("Evaluation Warning: The document was created with Spire.Doc for .NET.", "");
+                                convText = readText;
+                            }
                         }
                     }
-                }
-                string newConvText = new string(builder.ToArray());
+                    catch
+                    {
+                        MessageBox.Show(fileName + " cannot be opened! Skipping this file.", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                        continue;
+                    }
 
-                //System.IO.File.WriteAllText(@"C:\\Users\\brahamj\\Downloads\\newFormatTempText" + count + ".txt", newConvText);
+                    List<Char> builder = new List<char>();
+                    //Used to fix if there are multiple newlines in a row
+                    bool isNewLine = true;
+
+                    //Remove special characters which would need to be escaped for JSON and creates new string using builder var
+                    for (int i = 0; i < convText.Length; i++)
+                    {
+                        if (convText[i] == '\t')
+                        {
+                            builder.Add(' ');
+                        }
+                        else if (convText[i] == char.MinValue)
+                        {
+                            builder.Add(' ');
+                        }
+                        else if (convText[i] == '\\')
+                        {
+                            builder.Add('\\');
+                            builder.Add('\\');
+                        }
+                        else if ((convText[i] == '\n' || convText[i] == '\r') && isNewLine == false)
+                        {
+                            if (convText[i - 1] == '.' || convText[i - 1] == ':' || convText[i - 1] == ',')
+                            {
+                                builder.Add(' ');
+                            }
+                            else if (convText[i - 1] != ' ')
+                            {
+                                builder.Add('.');
+                                builder.Add(' ');
+                            }
+                            isNewLine = true;
+                        }
+                        else if (convText[i] != '\n' && convText[i] != '\r')
+                        {
+                            isNewLine = false;
+                            //If '"' is already escaped ignore
+                            if (convText[i] == '"' && convText[i - 1] != '\\')
+                            {
+                                //Adds a single '\' before the '"'
+                                builder.Add('\\');
+                                builder.Add('"');
+                            }
+                            else
+                            {
+                                builder.Add(convText[i]);
+                            }
+                        }
+                    }
+                    newConvText = new string(builder.ToArray());
+                    if (Directory.Exists("textResumes") == false)
+                    {
+                        Directory.CreateDirectory("textResumes");
+                    }
+                    System.IO.File.WriteAllText("textResumes/" + fileName + ".txt", newConvText);
+                }
+                else
+                {
+                    newConvText = System.IO.File.ReadAllText("textResumes/" + fileName + ".txt");
+                }
 
                 //Calculate years of experience
                 bool inExperience = false;
@@ -773,7 +812,7 @@ namespace ResumeEngineV2
                             }
 
                             //Do it again for second keyword if the field exists
-                            if (!String.IsNullOrEmpty(postData2))
+                            if (!String.IsNullOrEmpty(postData2[0]))
                             {
                                 if (whichLib2 == 0)
                                 {
@@ -844,7 +883,7 @@ namespace ResumeEngineV2
                             }
                         }
                         double totalMatchScore = 0;
-                        if (!String.IsNullOrEmpty(postData2))
+                        if (!String.IsNullOrEmpty(postData2[0]))
                         {
                             double firstWeight = (double)(Int32.Parse(weight.Replace("%", ""))) / 100;
                             double secondWeight = 1 - firstWeight;
@@ -863,12 +902,38 @@ namespace ResumeEngineV2
                     else
                     {
                         //Build JSON request string each loop
-                        postData += "[{\"term\": \"" + (string)arguments[3] + "\"},{\"text\": \"" + newConvText + "\"}],";
-                        if (!String.IsNullOrEmpty(postData2))
+                        postData[postDataCount] += "[{\"term\": \"" + (string)arguments[3] + "\"},{\"text\": \"" + newConvText + "\"}],";
+                        if (!String.IsNullOrEmpty(postData2[0]))
                         {
-                            postData2 += "[{\"term\": \"" + (string)arguments[6] + "\"},{\"text\": \"" + newConvText + "\"}],";
+                            postData2[postDataCount] += "[{\"term\": \"" + (string)arguments[6] + "\"},{\"text\": \"" + newConvText + "\"}],";
                         }
                     }
+                }
+
+                //Incriment postDataCount if number of files is past limits
+                if (postDataCount == 0 && count > 200)
+                {
+                    postDataCount = 1;
+                }
+                else if (postDataCount == 1 && count > 400)
+                {
+                    postDataCount = 2;
+                }
+                else if (postDataCount == 2 && count > 600)
+                {
+                    postDataCount = 3;
+                }
+                else if (postDataCount == 3 && count > 800)
+                {
+                    postDataCount = 4;
+                }
+                else if (postDataCount == 4 && count > 1000)
+                {
+                    postDataCount = 5;
+                }
+                else if (postDataCount == 5 && count > 1200)
+                {
+                    postDataCount = 6;
                 }
 
                 //Send new progress bar value to backgroundWorker1_ProgressChanged as fields cannot be updated in backgroundWorker thread
@@ -884,85 +949,18 @@ namespace ResumeEngineV2
             if (isUsingCortical == true)
             {
                 //Removes trailing ',' and replaces with ']' to close JSON object
-                postData = postData.Remove(postData.Length - 1, 1) + "]";
-                if (!String.IsNullOrEmpty(postData2))
+                for (int i = 0; i <= postDataCount; i++)
                 {
-                    postData2 = postData2.Remove(postData2.Length - 1, 1) + "]";
-                }
-
-                //No Data found
-                if (postData == "]")
-                {
-                    MessageBox.Show("No data could be obtained using the search parameters!", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
-                    List<object> newArgs = new List<object>();
-                    newArgs.Add("Results:");
-                    newArgs.Add(true);
-                    e.Result = newArgs;
-                    return;
-                }
-
-                //System.IO.File.WriteAllText(@"C:\\Users\\brahamj\\Downloads\\jsonPost.txt", postData);
-                //postData = System.IO.File.ReadAllText(@"C:\\Users\\brahamj\\Downloads\\jsonPost.txt");
-
-                //API Request to cortical.io to compare text taken from SharePoint with a keyword the user provided
-                WebRequest webRequest = WebRequest.Create("http://api.cortical.io:80/rest/compare/bulk?retina_name=en_associative");
-                webRequest.Method = "POST";
-                webRequest.Headers["api-key"] = "bb355cc0-5873-11e8-9172-3ff24e827f76";
-                webRequest.ContentType = "application/json";
-                //Send request with postData string as the body
-                using (var streamWriter = new StreamWriter(webRequest.GetRequestStream()))
-                {
-                    streamWriter.Write(postData);
-                    streamWriter.Flush();
-                    streamWriter.Close();
-                }
-                string result = "";
-                string result2 = "";
-                //Recieve response from cortical.io API
-                try
-                {
-                    WebResponse webResp = webRequest.GetResponse();
-                    using (var streamReader = new StreamReader(webResp.GetResponseStream()))
+                    postData[i] = postData[i].Remove(postData[i].Length - 1, 1) + "]";
+                    if (!String.IsNullOrEmpty(postData2[0]))
                     {
-                        result = streamReader.ReadToEnd();
+                        postData2[i] = postData2[i].Remove(postData2[i].Length - 1, 1) + "]";
                     }
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show("\nCannot connect to cortical.io API. Aborting!\n\nError: " + ex.Message);
-                    List<object> newArgs = new List<object>();
-                    newArgs.Add("Results:");
-                    newArgs.Add(true);
-                    e.Result = newArgs;
-                    return;
-                }
-                backgroundWorker1.ReportProgress(99);
 
-                if (!String.IsNullOrEmpty(postData2))
-                {
-                    webRequest = WebRequest.Create("http://api.cortical.io:80/rest/compare/bulk?retina_name=en_associative");
-                    webRequest.Method = "POST";
-                    webRequest.Headers["api-key"] = "bb355cc0-5873-11e8-9172-3ff24e827f76";
-                    webRequest.ContentType = "application/json";
-                    //Send request with postData string as the body
-                    using (var streamWriter = new StreamWriter(webRequest.GetRequestStream()))
+                    //No Data found
+                    if (postData[i] == "]")
                     {
-                        streamWriter.Write(postData2);
-                        streamWriter.Flush();
-                        streamWriter.Close();
-                    }
-                    //Recieve response from cortical.io API
-                    try
-                    {
-                        WebResponse webResp = webRequest.GetResponse();
-                        using (var streamReader = new StreamReader(webResp.GetResponseStream()))
-                        {
-                            result2 = streamReader.ReadToEnd();
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        MessageBox.Show("\nCannot connect to cortical.io API. Aborting!\n\nError: " + ex.Message);
+                        MessageBox.Show("No data could be obtained using the search parameters!", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
                         List<object> newArgs = new List<object>();
                         newArgs.Add("Results:");
                         newArgs.Add(true);
@@ -970,56 +968,128 @@ namespace ResumeEngineV2
                         return;
                     }
                 }
-                backgroundWorker1.ReportProgress(100);
 
-                //Formats return string as JSON
-                dynamic jsonObj = JsonConvert.DeserializeObject<dynamic>(result);
-                dynamic jsonObj2 = null;
-                if (!String.IsNullOrEmpty(postData2))
-                {
-                    jsonObj2 = JsonConvert.DeserializeObject<dynamic>(result2);
-                }
+                //System.IO.File.WriteAllText(@"C:\\Users\\brahamj\\Downloads\\jsonPost.txt", postData);
+                //postData = System.IO.File.ReadAllText(@"C:\\Users\\brahamj\\Downloads\\jsonPost.txt");
 
-                //Calculates match percent for each return object which correlates to each resume
+                //API Request to cortical.io to compare text taken from SharePoint with a keyword the user provided
                 List<KeyValuePair<double, int>> percentName = new List<KeyValuePair<double, int>>();
                 List<KeyValuePair<double, string>> percentLink = new List<KeyValuePair<double, string>>();
-                for (int i = 0; i < jsonObj.Count; i++)
+                backgroundWorker1.ReportProgress(99);
+                for (int k = 0; k <= postDataCount; k++)
                 {
-                    double matchPercent = Math.Round((double)jsonObj[i].cosineSimilarity, 3);
-                    double matchPercent2 = 0;
-                    if (!String.IsNullOrEmpty(postData2))
+                    WebRequest webRequest = WebRequest.Create("http://api.cortical.io:80/rest/compare/bulk?retina_name=en_associative");
+                    webRequest.Method = "POST";
+                    webRequest.Headers["api-key"] = "bb355cc0-5873-11e8-9172-3ff24e827f76";
+                    webRequest.ContentType = "application/json";
+                    //Send request with postData string as the body
+                    using (var streamWriter = new StreamWriter(webRequest.GetRequestStream()))
                     {
-                        matchPercent2 = Math.Round((double)jsonObj2[i].cosineSimilarity, 3);
-
-                        if (matchPercent2 <= 0.1)
+                        streamWriter.Write(postData[k]);
+                        streamWriter.Flush();
+                        streamWriter.Close();
+                    }
+                    string result = "";
+                    string result2 = "";
+                    //Recieve response from cortical.io API
+                    try
+                    {
+                        WebResponse webResp = webRequest.GetResponse();
+                        using (var streamReader = new StreamReader(webResp.GetResponseStream()))
                         {
-                            matchPercent2 = 0;
+                            result = streamReader.ReadToEnd();
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show("\nCannot connect to cortical.io API. Aborting!\n\nError: " + ex.Message, "Error!", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                        List<object> newArgs = new List<object>();
+                        newArgs.Add("Results:");
+                        newArgs.Add(true);
+                        e.Result = newArgs;
+                        return;
+                    }
+
+                    if (!String.IsNullOrEmpty(postData2[0]))
+                    {
+                        webRequest = WebRequest.Create("http://api.cortical.io:80/rest/compare/bulk?retina_name=en_associative");
+                        webRequest.Method = "POST";
+                        webRequest.Headers["api-key"] = "bb355cc0-5873-11e8-9172-3ff24e827f76";
+                        webRequest.ContentType = "application/json";
+                        //Send request with postData string as the body
+                        using (var streamWriter = new StreamWriter(webRequest.GetRequestStream()))
+                        {
+                            streamWriter.Write(postData2[k]);
+                            streamWriter.Flush();
+                            streamWriter.Close();
+                        }
+                        //Recieve response from cortical.io API
+                        try
+                        {
+                            WebResponse webResp = webRequest.GetResponse();
+                            using (var streamReader = new StreamReader(webResp.GetResponseStream()))
+                            {
+                                result2 = streamReader.ReadToEnd();
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            MessageBox.Show("\nCannot connect to cortical.io API. Aborting!\n\nError: " + ex.Message, "Error!", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                            List<object> newArgs = new List<object>();
+                            newArgs.Add("Results:");
+                            newArgs.Add(true);
+                            e.Result = newArgs;
+                            return;
+                        }
+                    }
+
+                    //Formats return string as JSON
+                    dynamic jsonObj = JsonConvert.DeserializeObject<dynamic>(result);
+                    dynamic jsonObj2 = null;
+                    if (!String.IsNullOrEmpty(postData2[0]))
+                    {
+                        jsonObj2 = JsonConvert.DeserializeObject<dynamic>(result2);
+                    }
+
+                    //Calculates match percent for each return object which correlates to each resume
+                    for (int i = 0; i < jsonObj.Count; i++)
+                    {
+                        double matchPercent = Math.Round((double)jsonObj[i].cosineSimilarity, 3);
+                        double matchPercent2 = 0;
+                        if (!String.IsNullOrEmpty(postData2[0]))
+                        {
+                            matchPercent2 = Math.Round((double)jsonObj2[i].cosineSimilarity, 3);
+
+                            if (matchPercent2 <= 0.1)
+                            {
+                                matchPercent2 = 0;
+                            }
+                            else
+                            {
+                                matchPercent2 = Math.Round(((Math.Pow(Math.Log10(1 / matchPercent2), 3.55) * -1) + 1) * 100, 2);
+                            }
+                        }
+
+                        if (matchPercent <= 0.1)
+                        {
+                            matchPercent = 0;
                         }
                         else
                         {
-                            matchPercent2 = Math.Round(((Math.Pow(Math.Log10(1 / matchPercent2), 3.55) * -1) + 1) * 100, 2);
+                            matchPercent = Math.Round(((Math.Pow(Math.Log10(1 / matchPercent), 3.55) * -1) + 1) * 100, 2);
                         }
-                    }
 
-                    if (matchPercent <= 0.1)
-                    {
-                        matchPercent = 0;
-                    }
-                    else
-                    {
-                        matchPercent = Math.Round(((Math.Pow(Math.Log10(1 / matchPercent), 3.55) * -1) + 1) * 100, 2);
-                    }
+                        //If multiple keywords, get weighted percent
+                        if (!String.IsNullOrEmpty(postData2[0]))
+                        {
+                            double firstWeight = (double)(Int32.Parse(weight.Replace("%", ""))) / 100;
+                            double secondWeight = 1 - firstWeight;
 
-                    //If multiple keywords, get weighted percent
-                    if (!String.IsNullOrEmpty(postData2))
-                    {
-                        double firstWeight = (double)(Int32.Parse(weight.Replace("%", ""))) / 100;
-                        double secondWeight = 1 - firstWeight;
-
-                        matchPercent = (((matchPercent / 100) * firstWeight) + ((matchPercent2 / 100) * secondWeight)) * 100;
+                            matchPercent = (((matchPercent / 100) * firstWeight) + ((matchPercent2 / 100) * secondWeight)) * 100;
+                        }
+                        percentLink.Add(new KeyValuePair<double, string>(matchPercent, links[i]));
+                        percentName.Add(new KeyValuePair<double, int>(matchPercent, i));
                     }
-                    percentLink.Add(new KeyValuePair<double, string>(matchPercent, links[i]));
-                    percentName.Add(new KeyValuePair<double, int>(matchPercent, i));
                 }
 
                 //Order from greatest to least match percent
@@ -1035,10 +1105,14 @@ namespace ResumeEngineV2
                     keyList.Add(percentName[i].Key + "%");
                 }
 
+                backgroundWorker1.ReportProgress(100);
+                watch.Stop();
+                Console.WriteLine("Run Time: " + (double)watch.ElapsedMilliseconds/1000 + " seconds");
+
                 //Sends finished data to e.Result so when backgroundWorker1 is completed it can access the data and correctly update the fields
                 //This has to be done as you cannot update the fields inside backgroundWorker thread
                 List<object> returnArgs = new List<object>();
-                if (!String.IsNullOrEmpty(postData2))
+                if (!String.IsNullOrEmpty(postData2[0]))
                 {
                     returnArgs.Add("Results for \"" + (string)arguments[3] + "\" and \"" + (string)arguments[6] + "\":\n(You can double click any row to view the resume)");
                 }
@@ -1068,11 +1142,13 @@ namespace ResumeEngineV2
                 }
 
                 backgroundWorker1.ReportProgress(100);
+                watch.Stop();
+                Console.WriteLine("Run Time: " + (double)watch.ElapsedMilliseconds/1000 + " seconds");
 
                 //Sends finished data to e.Result so when backgroundWorker1 is completed it can access the data and correctly update the fields
                 //This has to be done as you cannot update the fields inside backgroundWorker thread
                 List<object> returnArgs = new List<object>();
-                if (!String.IsNullOrEmpty(postData2))
+                if (!String.IsNullOrEmpty(postData2[0]))
                 {
                     returnArgs.Add("Results for \"" + (string)arguments[3] + "\" and \"" + (string)arguments[6] + "\":\n(You can double click any row to view the resume)");
                 }

@@ -24,8 +24,16 @@ namespace ResumeEngineV2
     {
         public List<string> namesOrdered = new List<string>();
         public List<string> linksOrdered = new List<string>();
+        public List<int> experienceOrdered = new List<int>();
         Label lblMinusTextBox;
         TextBox txtBoxSecondKeyword;
+
+        //Library keywords
+        string[] energyLib = { "Energy", "Bruce", "Cogeneration", "Fabrication", "Gas", "Module", "Modules", "Nuclear", "Oil", "OPG", "Ontario Power Generation", "Pipeline", "Pipelines", "Utilities" };
+        string[] infrastructureLib = { "Infrastructure", "Airport", "Airports", "Asphalt", "Bridge", "Bridges", "Hydroelectric", "Rail", "Road", "Roads", "Transit", "Tunnel", "Tunnels", "Water Treatment" };
+        string[] miningLib = { "Mining", "Fabrication", "Mechanical Works", "Mine Site Development", "Module", "Modules", "Overburden Removal", "Processing Facilities", "Reclamation" };
+        string[] concessionsLib = { "Concessions", "Accounting", "Bank", "Banks", "Equity Investments", "Maintenance", "Operations", "Project Financing", "Project Development", "Public Private Partnership", "P3" };
+        string[] otherLib = { "Advisor", "Boilermaker", "Buyer", "AutoCAD", "CAD", "Carpenter", "Concrete", "Contract", "Controller", "Controls", "Coordinator", "Counsel", "Craft Recruiter", "Customer Service Representative", "Designer", "Dockmaster", "Document Control", "Draftsperson", "E&I", "Electrical and Instrumentation", "EHS", "Environmental health and safety", "Electrician", "Engineer", "Environment", "Equipment", "Estimator", "Field Support", "Network Support", "Fitter", "Welder", "Foreperson", "Foreman", "Inspector", "Ironwork", "Labourer", "Lead", "Locator", "Material", "Operator", "Pavement", "PEng", "Professional Engineer", "Planner", "Plumber", "Project Design", "Purchaser", "Requisitioner", "Risk", "Scheduler", "Specialist", "Splicer", "Superintendent", "Supervisor", "Support", "Surveyor", "Technical Services", "Technician", "Turnover", "Vendor" };
 
         public Form1()
         {
@@ -282,13 +290,6 @@ namespace ResumeEngineV2
 
         private void btnKeywordSubmit_Click(object sender, EventArgs e)
         {
-            //Library of keywords
-            string[] energyLib = { "Energy", "Bruce", "Cogeneration", "Fabrication", "Gas", "Module", "Modules", "Nuclear", "Oil", "OPG", "Ontario Power Generation", "Pipeline", "Pipelines", "Utilities" };
-            string[] infrastructureLib = { "Infrastructure", "Airport", "Airports", "Asphalt", "Bridge", "Bridges", "Hydroelectric", "Rail", "Road", "Roads", "Transit", "Tunnel", "Tunnels", "Water Treatment" };
-            string[] miningLib = { "Mining", "Fabrication", "Mechanical Works", "Mine Site Development", "Module", "Modules", "Overburden Removal", "Processing Facilities", "Reclamation" };
-            string[] concessionsLib = { "Concessions", "Accounting", "Bank", "Banks", "Equity Investments", "Maintenance", "Operations", "Project Financing", "Project Development", "Public Private Partnership", "P3" };
-            string[] otherLib = { "Advisor", "Boilermaker", "Buyer", "CAD", "Carpenter", "Concrete", "Contract", "Controller", "Controls", "Coordinator", "Counsel", "Craft Recruiter", "Customer Service Representative", "Designer", "Dockmaster", "Document Control", "Draftsperson", "E&I", "Electrical and Instrumentation", "EHS", "Environmental health and safety", "Electrician", "Engineer", "Environment", "Equipment", "Estimator", "Field Support", "Network Support", "Fitter", "Welder", "Foreperson", "Foreman", "Inspector", "Ironwork", "Labourer", "Lead", "Locator", "Material", "Operator", "Pavement", "PEng", "Professional Engineer", "Planner", "Plumber", "Project Design", "Purchaser", "Requisitioner", "Risk", "Scheduler", "Specialist", "Splicer", "Superintendent", "Supervisor", "Support", "Surveyor", "Technical Services", "Technician", "Turnover", "Vendor" };
-
             //Whipe global Lists
             namesOrdered.Clear();
             linksOrdered.Clear();
@@ -309,7 +310,7 @@ namespace ResumeEngineV2
             //If user enters first keyword in our lib, second keyword must also be in the lib
             else if (lblAddTextBox.Visible == false && (energyLib.Contains(txtBoxKeyword.Text, StringComparer.OrdinalIgnoreCase) || infrastructureLib.Contains(txtBoxKeyword.Text, StringComparer.OrdinalIgnoreCase) || miningLib.Contains(txtBoxKeyword.Text, StringComparer.OrdinalIgnoreCase) || concessionsLib.Contains(txtBoxKeyword.Text, StringComparer.OrdinalIgnoreCase) || otherLib.Contains(txtBoxKeyword.Text, StringComparer.OrdinalIgnoreCase)) && (!energyLib.Contains(txtBoxSecondKeyword.Text, StringComparer.OrdinalIgnoreCase) && !infrastructureLib.Contains(txtBoxSecondKeyword.Text, StringComparer.OrdinalIgnoreCase) && !miningLib.Contains(txtBoxSecondKeyword.Text, StringComparer.OrdinalIgnoreCase) && !concessionsLib.Contains(txtBoxSecondKeyword.Text, StringComparer.OrdinalIgnoreCase) && !otherLib.Contains(txtBoxSecondKeyword.Text, StringComparer.OrdinalIgnoreCase)))
             {
-                MessageBox.Show("Your first keyword is in our library and so the second keyword must also be in the library!\n\nList of Keywords:\n\nEnergy, Bruce, Cogeneration, Fabrication, Gas, Modules, Nuclear, Oil, OPG, Ontario Power Generation, Pipelines, Utilities\n\nInfrastructure, Airports, Asphalt, Bridges, Hydroelectric, Rail, Road, Transit, Tunnels, Water Treatment\n\nMining, Fabrication, Mechanical Works, Mine Site Development, Modules, Overburden Removal, Processing Facilities, Reclamation\n\nConcessions, Accounting, Bank,Equity Investments, Maintenance, Operations, Project Financing, Project Development, Public Private Partnership, P3s\n\nAdvisor, Boilermaker, Buyer, CAD, Carpenter, Concrete, Contract, Controller, Controls, Coordinator,Counsel, Craft Recruiter, Customer Service Representative, Designer, Dockmaster, Document Control, Draftsperson, E & I, Electrical and Instrumentation, EHS, Environmental health and safety, Electrician, Engineer, Environment, Equipment, Estimator, Field Support, Network Support, Fitter, Welder, Foreperson, Foreman, Inspector, Ironwork, Labourer, Lead, Locator, Material, Operator, Pavement, PEng, Professional Engineer, Planner, Plumber, Project Design, Purchaser, Requisitioner, Risk, Scheduler,Specialist, Splicer, Superintendent, Supervisor, Support, Surveyor, Technical Services, Technician, Turnover, Vendor", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                MessageBox.Show("Your first keyword is in our library and so the second keyword must also be in the library!\n\nList of Keywords:\n\nEnergy, Bruce, Cogeneration, Fabrication, Gas, Modules, Nuclear, Oil, OPG, Ontario Power Generation, Pipelines, Utilities\n\nInfrastructure, Airports, Asphalt, Bridges, Hydroelectric, Rail, Road, Transit, Tunnels, Water Treatment\n\nMining, Fabrication, Mechanical Works, Mine Site Development, Modules, Overburden Removal, Processing Facilities, Reclamation\n\nConcessions, Accounting, Bank,Equity Investments, Maintenance, Operations, Project Financing, Project Development, Public Private Partnership, P3s\n\nAdvisor, Boilermaker, Buyer, AutoCAD, CAD, Carpenter, Concrete, Contract, Controller, Controls, Coordinator,Counsel, Craft Recruiter, Customer Service Representative, Designer, Dockmaster, Document Control, Draftsperson, E & I, Electrical and Instrumentation, EHS, Environmental health and safety, Electrician, Engineer, Environment, Equipment, Estimator, Field Support, Network Support, Fitter, Welder, Foreperson, Foreman, Inspector, Ironwork, Labourer, Lead, Locator, Material, Operator, Pavement, PEng, Professional Engineer, Planner, Plumber, Project Design, Purchaser, Requisitioner, Risk, Scheduler,Specialist, Splicer, Superintendent, Supervisor, Support, Surveyor, Technical Services, Technician, Turnover, Vendor", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
             }
             else
             {
@@ -467,6 +468,7 @@ namespace ResumeEngineV2
             int count = 0;
             List<string> names = (System.Collections.Generic.List<string>)arguments[4];
             List<string> links = new List<string>();
+            List<int> experience = new List<int>();
             Web web = (Web)arguments[1];
             string weight = (string)arguments[7];
 
@@ -493,6 +495,7 @@ namespace ResumeEngineV2
             bool isUsingCortical = true;
             List<KeyValuePair<double, int>> matchScoreName = new List<KeyValuePair<double, int>>();
             List<KeyValuePair<double, string>> matchScoreLink = new List<KeyValuePair<double, string>>();
+            List<KeyValuePair<double, int>> matchScoreExperience = new List<KeyValuePair<double, int>>();
             int matchScoreCounter = 0;
 
             //Check if there are resumes
@@ -509,13 +512,6 @@ namespace ResumeEngineV2
             //0 = energy, 1 = infrastructure, 2 = mining, 3 = conecessions, 4 = other
             int whichLib = -1;
             int whichLib2 = -1;
-
-            //Library of keywords
-            string[] energyLib = { "Energy", "Bruce", "Cogeneration", "Fabrication", "Gas", "Module", "Modules", "Nuclear", "Oil", "OPG", "Ontario Power Generation", "Pipeline", "Pipelines", "Utilities" };
-            string[] infrastructureLib = { "Infrastructure", "Airport", "Airports", "Asphalt", "Bridge", "Bridges", "Hydroelectric", "Rail", "Road", "Roads", "Transit", "Tunnel", "Tunnels", "Water Treatment" };
-            string[] miningLib = { "Mining", "Fabrication", "Mechanical Works", "Mine Site Development", "Module", "Modules", "Overburden Removal", "Processing Facilities", "Reclamation" };
-            string[] concessionsLib = { "Concessions", "Accounting", "Bank", "Banks", "Equity Investments", "Maintenance", "Operations", "Project Financing", "Project Development", "Public Private Partnership", "P3" };
-            string[] otherLib = { "Advisor", "Boilermaker", "Buyer", "CAD", "Carpenter", "Concrete", "Contract", "Controller", "Controls", "Coordinator", "Counsel", "Craft Recruiter", "Customer Service Representative", "Designer", "Dockmaster", "Document Control", "Draftsperson", "E&I", "Electrical and Instrumentation", "EHS", "Environmental health and safety", "Electrician", "Engineer", "Environment", "Equipment", "Estimator", "Field Support", "Network Support", "Fitter", "Welder", "Foreperson", "Foreman", "Inspector", "Ironwork", "Labourer", "Lead", "Locator", "Material", "Operator", "Pavement", "PEng", "Professional Engineer", "Planner", "Plumber", "Project Design", "Purchaser", "Requisitioner", "Risk", "Scheduler", "Specialist", "Splicer", "Superintendent", "Supervisor", "Support", "Surveyor", "Technical Services", "Technician", "Turnover", "Vendor" };
 
             //Check if keyword matches any keywords in library and thus we are not using cortical.io
             if (energyLib.Contains((string)arguments[3], StringComparer.OrdinalIgnoreCase))
@@ -696,7 +692,7 @@ namespace ResumeEngineV2
                 int lowestYear = -1;
                 int tempYear = 0;
                 //Loop through doc word by word
-                foreach (string word in newConvText.Split(' '))
+                foreach (string word in newConvText.Split(new char[] { ' ', ',', '.', '/', '-' }))
                 {
                     //Check if in experience section and came across a number 
                     if (inExperience == true && int.TryParse(word, out tempYear))
@@ -708,12 +704,12 @@ namespace ResumeEngineV2
                         }
                     }
                     //If come across education section while searching in experience section stop searching
-                    else if (inExperience == true && String.Equals(word, "Education", StringComparison.OrdinalIgnoreCase))
+                    else if (inExperience == true && (String.Equals(word, "Education", StringComparison.OrdinalIgnoreCase) || String.Equals(word, "Educ", StringComparison.OrdinalIgnoreCase)))
                     {
-                        break;
+                        inExperience = false;
                     }
                     //If come across education sections or employment section start searching for years of experience
-                    else if (String.Equals(word, "Experience", StringComparison.OrdinalIgnoreCase) || String.Equals(word, "Employment", StringComparison.OrdinalIgnoreCase) || String.Equals(word, "Employ", StringComparison.OrdinalIgnoreCase))
+                    else if (String.Equals(word, "Experience", StringComparison.OrdinalIgnoreCase) || String.Equals(word, "xperience", StringComparison.OrdinalIgnoreCase) || String.Equals(word, "Employment", StringComparison.OrdinalIgnoreCase) || String.Equals(word, "Employ", StringComparison.OrdinalIgnoreCase))
                     {
                         inExperience = true;
                     }
@@ -724,6 +720,7 @@ namespace ResumeEngineV2
                 {
                     experienceYears = DateTime.Now.Year - lowestYear;
                 }
+
                 int txtBoxOutExperience;
                 int.TryParse(txtBoxExperience.Text, out txtBoxOutExperience);
 
@@ -732,6 +729,7 @@ namespace ResumeEngineV2
                 {
                     links.Add(item.LinkingUri);
                     names.Add(fileName.Replace(".txt", ""));
+                    experience.Add(experienceYears);
 
                     //Use own library or cortical.io
                     if (isUsingCortical == false)
@@ -742,7 +740,7 @@ namespace ResumeEngineV2
                         int numExactMatchesSecond = 0;
                         int numCategoryMatchesSecond = 0;
                         //Check occurances of keywords in resume
-                        foreach (string word in newConvText.Split(' '))
+                        foreach (string word in newConvText.Split(new char[] { ' ', ',', '.', '/', '(', ')' }))
                         {
                             if (whichLib == 0)
                             {
@@ -804,7 +802,7 @@ namespace ResumeEngineV2
                             {
                                 if (otherLib.Contains(word, StringComparer.OrdinalIgnoreCase))
                                 {
-                                    if (String.Equals((string)arguments[3], word, StringComparison.OrdinalIgnoreCase))
+                                    if (word.IndexOf((string)arguments[3], StringComparison.OrdinalIgnoreCase) >= 0)
                                     {
                                         numExactMatches++;
                                     }
@@ -874,7 +872,7 @@ namespace ResumeEngineV2
                                 {
                                     if (otherLib.Contains(word, StringComparer.OrdinalIgnoreCase))
                                     {
-                                        if (String.Equals((string)arguments[6], word, StringComparison.OrdinalIgnoreCase))
+                                        if (word.IndexOf((string)arguments[6], StringComparison.OrdinalIgnoreCase) >= 0)
                                         {
                                             numExactMatchesSecond++;
                                         }
@@ -896,6 +894,7 @@ namespace ResumeEngineV2
                         {
                             totalMatchScore = (numExactMatches + ((double)numCategoryMatches / 10)) * 10;
                         }
+                        matchScoreExperience.Add(new KeyValuePair<double, int>(totalMatchScore, experience[matchScoreCounter]));
                         matchScoreLink.Add(new KeyValuePair<double, string>(totalMatchScore, links[matchScoreCounter]));
                         matchScoreName.Add(new KeyValuePair<double, int>(totalMatchScore, matchScoreCounter++));
                     }
@@ -975,6 +974,7 @@ namespace ResumeEngineV2
                 //API Request to cortical.io to compare text taken from SharePoint with a keyword the user provided
                 List<KeyValuePair<double, int>> percentName = new List<KeyValuePair<double, int>>();
                 List<KeyValuePair<double, string>> percentLink = new List<KeyValuePair<double, string>>();
+                List<KeyValuePair<double, int>> percentExperience = new List<KeyValuePair<double, int>>();
                 backgroundWorker1.ReportProgress(99);
                 for (int k = 0; k <= postDataCount; k++)
                 {
@@ -1087,6 +1087,7 @@ namespace ResumeEngineV2
 
                             matchPercent = (((matchPercent / 100) * firstWeight) + ((matchPercent2 / 100) * secondWeight)) * 100;
                         }
+                        percentExperience.Add(new KeyValuePair<double, int>(matchPercent, experience[i]));
                         percentLink.Add(new KeyValuePair<double, string>(matchPercent, links[i]));
                         percentName.Add(new KeyValuePair<double, int>(matchPercent, i));
                     }
@@ -1095,6 +1096,7 @@ namespace ResumeEngineV2
                 //Order from greatest to least match percent
                 percentName = percentName.OrderByDescending(x => x.Key).ToList();
                 percentLink = percentLink.OrderByDescending(x => x.Key).ToList();
+                percentExperience = percentExperience.OrderByDescending(x => x.Key).ToList();
 
                 List<string> keyList = new List<string>();
                 //Generates response to populate gridView
@@ -1102,6 +1104,7 @@ namespace ResumeEngineV2
                 {
                     namesOrdered.Add(names[percentName[i].Value]);
                     linksOrdered.Add(percentLink[i].Value);
+                    experienceOrdered.Add(percentExperience[i].Value);
                     keyList.Add(percentName[i].Key + "%");
                 }
 
@@ -1131,6 +1134,7 @@ namespace ResumeEngineV2
                 //Order from greatest to least match percent
                 matchScoreName = matchScoreName.OrderByDescending(x => x.Key).ToList();
                 matchScoreLink = matchScoreLink.OrderByDescending(x => x.Key).ToList();
+                matchScoreExperience = matchScoreExperience.OrderByDescending(x => x.Key).ToList();
 
                 List<string> keyList = new List<string>();
                 //Generates response to populate gridView
@@ -1138,6 +1142,7 @@ namespace ResumeEngineV2
                 {
                     namesOrdered.Add(names[matchScoreName[i].Value]);
                     linksOrdered.Add(matchScoreLink[i].Value);
+                    experienceOrdered.Add(matchScoreExperience[i].Value);
                     keyList.Add(matchScoreName[i].Key + "%");
                 }
 
@@ -1181,7 +1186,7 @@ namespace ResumeEngineV2
                 progressBar1.Visible = false;
                 for (int i = 0; i < namesOrdered.Count(); i++)
                 {
-                    resultsView.Rows.Add(namesOrdered[i], keyList[i]);
+                    resultsView.Rows.Add(namesOrdered[i], experienceOrdered[i], keyList[i]);
                     resultsView.Rows[i].HeaderCell.Value = String.Format("{0}", resultsView.Rows[i].Index + 1);
                 }
                 resultsView.Focus();

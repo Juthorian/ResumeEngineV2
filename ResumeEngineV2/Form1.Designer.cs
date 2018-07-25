@@ -45,12 +45,13 @@
             this.lblUsername = new System.Windows.Forms.Label();
             this.lblPassword = new System.Windows.Forms.Label();
             this.resultsView = new System.Windows.Forms.DataGridView();
-            this.FileName = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.Percent = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.lblAddTextBox = new System.Windows.Forms.Label();
             this.cmbWeight = new System.Windows.Forms.ComboBox();
             this.txtBoxExperience = new System.Windows.Forms.TextBox();
             this.lblExperience = new System.Windows.Forms.Label();
+            this.FileName = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Experience = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Percent = new System.Windows.Forms.DataGridViewTextBoxColumn();
             ((System.ComponentModel.ISupportInitialize)(this.resultsView)).BeginInit();
             this.SuspendLayout();
             // 
@@ -178,6 +179,7 @@
             this.resultsView.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.resultsView.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
             this.FileName,
+            this.Experience,
             this.Percent});
             this.resultsView.Location = new System.Drawing.Point(402, 48);
             this.resultsView.Name = "resultsView";
@@ -198,20 +200,6 @@
             this.resultsView.TabIndex = 12;
             this.resultsView.TabStop = false;
             this.resultsView.CellDoubleClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.resultsView_CellClick);
-            // 
-            // FileName
-            // 
-            this.FileName.HeaderText = "File Name";
-            this.FileName.Name = "FileName";
-            this.FileName.ReadOnly = true;
-            this.FileName.Width = 260;
-            // 
-            // Percent
-            // 
-            this.Percent.HeaderText = "Percent Match";
-            this.Percent.Name = "Percent";
-            this.Percent.ReadOnly = true;
-            this.Percent.Width = 85;
             // 
             // lblAddTextBox
             // 
@@ -265,6 +253,26 @@
             this.lblExperience.TabIndex = 8;
             this.lblExperience.Text = "Min Years of Experience";
             // 
+            // FileName
+            // 
+            this.FileName.HeaderText = "File Name";
+            this.FileName.Name = "FileName";
+            this.FileName.ReadOnly = true;
+            this.FileName.Width = 260;
+            // 
+            // Experience
+            // 
+            this.Experience.HeaderText = "Years of Experience";
+            this.Experience.Name = "Experience";
+            this.Experience.ReadOnly = true;
+            // 
+            // Percent
+            // 
+            this.Percent.HeaderText = "Percent Match";
+            this.Percent.Name = "Percent";
+            this.Percent.ReadOnly = true;
+            this.Percent.Width = 85;
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -312,12 +320,13 @@
         private System.Windows.Forms.Label lblUsername;
         private System.Windows.Forms.Label lblPassword;
         private System.Windows.Forms.DataGridView resultsView;
-        private System.Windows.Forms.DataGridViewTextBoxColumn FileName;
-        private System.Windows.Forms.DataGridViewTextBoxColumn Percent;
         private System.Windows.Forms.Label lblAddTextBox;
         private System.Windows.Forms.ComboBox cmbWeight;
         private System.Windows.Forms.TextBox txtBoxExperience;
         private System.Windows.Forms.Label lblExperience;
+        private System.Windows.Forms.DataGridViewTextBoxColumn FileName;
+        private System.Windows.Forms.DataGridViewTextBoxColumn Experience;
+        private System.Windows.Forms.DataGridViewTextBoxColumn Percent;
     }
 }
 

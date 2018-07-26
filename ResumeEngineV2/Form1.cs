@@ -22,9 +22,12 @@ namespace ResumeEngineV2
 {
     public partial class Form1 : System.Windows.Forms.Form
     {
+        //Global list fileNames, file Links, and file experience
         public List<string> namesOrdered = new List<string>();
         public List<string> linksOrdered = new List<string>();
         public List<int> experienceOrdered = new List<int>();
+
+        //Textbox and associated minus label which are dynamically added and removed
         Label lblMinusTextBox;
         TextBox txtBoxSecondKeyword;
 
@@ -35,6 +38,7 @@ namespace ResumeEngineV2
         string[] concessionsLib = { "Concessions", "Accounting", "Bank", "Banks", "Equity Investments", "Maintenance", "Operations", "Project Financing", "Project Development", "Public Private Partnership", "P3" };
         string[] otherLib = { "Advisor", "Boilermaker", "Buyer", "AutoCAD", "CAD", "Carpenter", "Concrete", "Contract", "Controller", "Controls", "Coordinator", "Counsel", "Craft Recruiter", "Customer Service Representative", "Designer", "Dockmaster", "Document Control", "Draftsperson", "E&I", "Electrical and Instrumentation", "EHS", "Environmental health and safety", "Electrician", "Engineer", "Environment", "Equipment", "Estimator", "Field Support", "Network Support", "Fitter", "Welder", "Foreperson", "Foreman", "Inspector", "Ironwork", "Labourer", "Lead", "Locator", "Material", "Operator", "Pavement", "PEng", "Professional Engineer", "Planner", "Plumber", "Project Design", "Purchaser", "Requisitioner", "Risk", "Scheduler", "Specialist", "Splicer", "Superintendent", "Supervisor", "Support", "Surveyor", "Technical Services", "Technician", "Turnover", "Vendor" };
 
+        //Initial behaviour on load, decided whether to show login view or not
         public Form1()
         {
             InitializeComponent();
@@ -115,6 +119,7 @@ namespace ResumeEngineV2
             }
         }
 
+        //Checks if user entered credentials are valid and changes view out of login view
         private void btnLoginSubmit_Click(object sender, EventArgs e)
         {
             //Verify login credentials
@@ -208,6 +213,7 @@ namespace ResumeEngineV2
             }
         }
 
+        //Whipes fields when user logouts and sets login view
         private void btnLogout_Click(object sender, EventArgs e)
         {
             //Load xml and set credentials to ***
@@ -288,6 +294,7 @@ namespace ResumeEngineV2
             lblExperience.Visible = false;
         }
 
+        //Makes sure user input is valid and loads backgroundworker
         private void btnKeywordSubmit_Click(object sender, EventArgs e)
         {
             //Whipe global Lists
@@ -459,10 +466,9 @@ namespace ResumeEngineV2
             }
         }
 
+        //Gets resume files and orders them from most to least significant based on keyword(s)
         private void backgroundWoker1_DoWork(object sender, DoWorkEventArgs e)
         {
-            var watch = System.Diagnostics.Stopwatch.StartNew();
-
             List<object> arguments = e.Argument as List<object>;
             int totalCount = (int)arguments[5];
             int count = 0;
@@ -574,6 +580,7 @@ namespace ResumeEngineV2
                 string fileName = item.Name;
                 string newConvText = "";
 
+                //Check if file is already in local storage if not not, need to download else grab contents of file
                 if (System.IO.File.Exists("textResumes/" + fileName + ".txt") == false)
                 {
                     var filePath = web.ServerRelativeUrl + "/Shared%20Documents/Original/" + fileName;
@@ -675,6 +682,7 @@ namespace ResumeEngineV2
                             }
                         }
                     }
+                    //Create textResumes folder in root directory
                     newConvText = new string(builder.ToArray());
                     if (Directory.Exists("textResumes") == false)
                     {
@@ -880,6 +888,7 @@ namespace ResumeEngineV2
                                 }
                             }
                         }
+                        //Calculate match score by weighting exact matches as 1 point, category matches as 0.1 point
                         double totalMatchScore = 0;
                         if (!String.IsNullOrEmpty(postData2[0]))
                         {
@@ -1109,8 +1118,6 @@ namespace ResumeEngineV2
                 }
 
                 backgroundWorker1.ReportProgress(100);
-                watch.Stop();
-                Console.WriteLine("Run Time: " + (double)watch.ElapsedMilliseconds/1000 + " seconds");
 
                 //Sends finished data to e.Result so when backgroundWorker1 is completed it can access the data and correctly update the fields
                 //This has to be done as you cannot update the fields inside backgroundWorker thread
@@ -1147,8 +1154,6 @@ namespace ResumeEngineV2
                 }
 
                 backgroundWorker1.ReportProgress(100);
-                watch.Stop();
-                Console.WriteLine("Run Time: " + (double)watch.ElapsedMilliseconds/1000 + " seconds");
 
                 //Sends finished data to e.Result so when backgroundWorker1 is completed it can access the data and correctly update the fields
                 //This has to be done as you cannot update the fields inside backgroundWorker thread
@@ -1213,6 +1218,7 @@ namespace ResumeEngineV2
             progressBar1.Value = 0;
         }
 
+        //Opens up browser and loads file in SharePoint
         private void resultsView_CellClick(object sender, DataGridViewCellEventArgs e)
         {
             if (System.IO.Path.GetExtension(namesOrdered[e.RowIndex]) == ".pdf")
@@ -1225,6 +1231,7 @@ namespace ResumeEngineV2
             }
         }
 
+        //Encrypt creds.xml file
         private void Encrypt()
         {
             string text = System.IO.File.ReadAllText("creds.xml");
@@ -1238,6 +1245,7 @@ namespace ResumeEngineV2
             System.IO.File.WriteAllText(@"creds.xml", Convert.ToBase64String(outputBuffer));
         }
 
+        //Decrypt creds.xml file
         private void Decrypt()
         {
             string text = System.IO.File.ReadAllText("creds.xml");
@@ -1251,6 +1259,7 @@ namespace ResumeEngineV2
             System.IO.File.WriteAllText(@"creds.xml", Encoding.Unicode.GetString(outputBuffer));
         }
 
+        //Generates key for encryption
         private byte[] getKey()
         {
             try
@@ -1273,6 +1282,7 @@ namespace ResumeEngineV2
             }
         }
 
+        //Adds second keyword textfield when plus button clicked
         private void lblAddTextBox_Click(object sender, EventArgs e)
         {
             lblAddTextBox.Visible = false;
@@ -1302,6 +1312,7 @@ namespace ResumeEngineV2
             cmbWeight.Enabled = true;
         }
 
+        //Removes second keyword field when minus button clicked
         private void lblMinusTextBox_Click(object sender, EventArgs e)
         {
             lblAddTextBox.Visible = true;
@@ -1324,6 +1335,7 @@ namespace ResumeEngineV2
             }
         }
 
+        //On login screen whipes default text when field is clicked 
         private void textBoxUsername_Enter(object sender, EventArgs e)
         {
             if (textBoxUsername.Text == "Example: jbraham@aecon.com")
@@ -1333,6 +1345,7 @@ namespace ResumeEngineV2
             }
         }
 
+        //On Login screen loads default text if no text is entered when user leaves field
         private void textBoxUsername_Leave(object sender, EventArgs e)
         {
             if (textBoxUsername.Text == "")

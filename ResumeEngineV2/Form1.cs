@@ -300,6 +300,7 @@ namespace ResumeEngineV2
             //Whipe global Lists
             namesOrdered.Clear();
             linksOrdered.Clear();
+            experienceOrdered.Clear();
 
             //User must enter something for search to work, if extra field is up user must fill in something in both fields for submit to work
             if (txtBoxKeyword.Text == "" || txtBoxKeyword.Text.Contains("\"") || txtBoxKeyword.Text.Contains("\\"))
@@ -700,7 +701,7 @@ namespace ResumeEngineV2
                 int lowestYear = -1;
                 int tempYear = 0;
                 //Loop through doc word by word
-                foreach (string word in newConvText.Split(new char[] { ' ', ',', '.', '/', '-' }))
+                foreach (string word in newConvText.Split(new char[] { ' ', ',', '.', '/', '-' }, StringSplitOptions.RemoveEmptyEntries))
                 {
                     //Check if in experience section and came across a number 
                     if (inExperience == true && int.TryParse(word, out tempYear))
@@ -748,7 +749,7 @@ namespace ResumeEngineV2
                         int numExactMatchesSecond = 0;
                         int numCategoryMatchesSecond = 0;
                         //Check occurances of keywords in resume
-                        foreach (string word in newConvText.Split(new char[] { ' ', ',', '.', '/', '(', ')' }))
+                        foreach (string word in newConvText.Split(new char[] { ' ', ',', '.', '/', '(', ')' }, StringSplitOptions.RemoveEmptyEntries))
                         {
                             if (whichLib == 0)
                             {

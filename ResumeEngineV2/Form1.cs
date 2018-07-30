@@ -347,6 +347,7 @@ namespace ResumeEngineV2
                     txtBoxSecondKeyword.Enabled = false;
                 }
                 txtBoxExperience.Enabled = false;
+                btnClearData.Enabled = false;
 
                 string targetSiteURL = @"https://aecon1.sharepoint.com/sites/bd/resume/";
 
@@ -378,6 +379,7 @@ namespace ResumeEngineV2
                     cmbWeight.Enabled = true;
                     lblAddTextBox.Enabled = true;
                     txtBoxExperience.Enabled = true;
+                    btnClearData.Enabled = true;
                     btnLogout_Click(sender, e);
                     return;
                 }
@@ -424,6 +426,7 @@ namespace ResumeEngineV2
                     cmbWeight.Enabled = true;
                     lblAddTextBox.Enabled = true;
                     txtBoxExperience.Enabled = true;
+                    btnClearData.Enabled = true;
                     btnLogout_Click(sender, e);
                     return;
                 }
@@ -703,7 +706,7 @@ namespace ResumeEngineV2
                 //Loop through doc word by word
                 foreach (string word in newConvText.Split(new char[] { ' ', ',', '.', '/', '-' }, StringSplitOptions.RemoveEmptyEntries))
                 {
-                    //Check if in experience section and came across a number 
+                    //Check if in experience section and came across a number
                     if (inExperience == true && int.TryParse(word, out tempYear))
                     {
                         //If the number is greater then 1960 and less then the current year, then if this is the first number found or the number is less then the current smallest number, store it
@@ -920,27 +923,27 @@ namespace ResumeEngineV2
                 }
 
                 //Incriment postDataCount if number of files is past limits
-                if (postDataCount == 0 && count > 200)
+                if (postDataCount == 0 && count > 199)
                 {
                     postDataCount = 1;
                 }
-                else if (postDataCount == 1 && count > 400)
+                else if (postDataCount == 1 && count > 399)
                 {
                     postDataCount = 2;
                 }
-                else if (postDataCount == 2 && count > 600)
+                else if (postDataCount == 2 && count > 599)
                 {
                     postDataCount = 3;
                 }
-                else if (postDataCount == 3 && count > 800)
+                else if (postDataCount == 3 && count > 799)
                 {
                     postDataCount = 4;
                 }
-                else if (postDataCount == 4 && count > 1000)
+                else if (postDataCount == 4 && count > 999)
                 {
                     postDataCount = 5;
                 }
-                else if (postDataCount == 5 && count > 1200)
+                else if (postDataCount == 5 && count > 1199)
                 {
                     postDataCount = 6;
                 }
@@ -1097,9 +1100,9 @@ namespace ResumeEngineV2
 
                             matchPercent = (((matchPercent / 100) * firstWeight) + ((matchPercent2 / 100) * secondWeight)) * 100;
                         }
-                        percentExperience.Add(new KeyValuePair<double, int>(matchPercent, experience[i]));
-                        percentLink.Add(new KeyValuePair<double, string>(matchPercent, links[i]));
-                        percentName.Add(new KeyValuePair<double, int>(matchPercent, i));
+                        percentExperience.Add(new KeyValuePair<double, int>(matchPercent, experience[(k * 200) + i]));
+                        percentLink.Add(new KeyValuePair<double, string>(matchPercent, links[(k * 200) + i]));
+                        percentName.Add(new KeyValuePair<double, int>(matchPercent, (k * 200) + i));
                     }
                 }
 
@@ -1215,6 +1218,7 @@ namespace ResumeEngineV2
                 cmbWeight.Enabled = true;
             }
             txtBoxExperience.Enabled = true;
+            btnClearData.Enabled = true;
 
             progressBar1.Value = 0;
         }
@@ -1354,6 +1358,23 @@ namespace ResumeEngineV2
                 textBoxUsername.Text = "Example: jbraham@aecon.com";
                 textBoxUsername.ForeColor = SystemColors.ButtonShadow;
             }
+        }
+
+        //Deletes temp data stored on users machine
+        private void btnClearData_Click(object sender, EventArgs e)
+        {
+            if (Directory.Exists("textResumes"))
+            {
+                string[] files = Directory.GetFiles("textResumes/");
+                foreach (string file in files)
+                {
+                    System.IO.File.SetAttributes(file, FileAttributes.Normal);
+                    System.IO.File.Delete(file);
+                }
+                Directory.Delete("textResumes/", true);
+            }
+            System.IO.File.Delete("creds.xml");
+            MessageBox.Show("All temporary data has been successfully cleared from the user's machine!", "Success!", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
         }
     }
 }

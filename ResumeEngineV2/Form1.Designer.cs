@@ -52,6 +52,7 @@
             this.FileName = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.Experience = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.Percent = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.btnClearData = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.resultsView)).BeginInit();
             this.SuspendLayout();
             // 
@@ -273,11 +274,22 @@
             this.Percent.ReadOnly = true;
             this.Percent.Width = 85;
             // 
+            // btnClearData
+            // 
+            this.btnClearData.Location = new System.Drawing.Point(113, 346);
+            this.btnClearData.Name = "btnClearData";
+            this.btnClearData.Size = new System.Drawing.Size(97, 23);
+            this.btnClearData.TabIndex = 13;
+            this.btnClearData.Text = "Delete Data Files";
+            this.btnClearData.UseVisualStyleBackColor = true;
+            this.btnClearData.Click += new System.EventHandler(this.btnClearData_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(875, 387);
+            this.Controls.Add(this.btnClearData);
             this.Controls.Add(this.lblExperience);
             this.Controls.Add(this.txtBoxExperience);
             this.Controls.Add(this.cmbWeight);
@@ -327,6 +339,7 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn FileName;
         private System.Windows.Forms.DataGridViewTextBoxColumn Experience;
         private System.Windows.Forms.DataGridViewTextBoxColumn Percent;
+        private System.Windows.Forms.Button btnClearData;
     }
 }
 

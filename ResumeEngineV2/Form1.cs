@@ -48,11 +48,12 @@ namespace ResumeEngineV2
             //Set combo box to default value, 100%
             cmbWeight.SelectedIndex = 9;
 
-            //Add tool tip to + label
+            //Add tool tips to different labels / buttons 
             ToolTip tt = new ToolTip();
             tt.SetToolTip(lblAddTextBox, "Click to add another keyword field");
-
             tt.SetToolTip(lblUsername, "Example: jbraham@aecon.com");
+            tt.SetToolTip(btnClearData, "If something is going wrong click this button to delete your local data. This will log you out as well as increase the time it takes to search on the first run but may resolve your issue");
+            tt.SetToolTip(cmbWeight, "Weight for first keyword field");
 
             //Checks to see if creds.xml exists, if not creates file
             if (System.IO.File.Exists("creds.xml") == false)
@@ -1302,7 +1303,7 @@ namespace ResumeEngineV2
             lblMinusTextBox.Click += new EventHandler(this.lblMinusTextBox_Click);
             lblMinusTextBox.TabIndex = 3;
             ToolTip tt = new ToolTip();
-            tt.SetToolTip(lblMinusTextBox, "Click to remove the other keyword field");
+            tt.SetToolTip(lblMinusTextBox, "Click to remove the second keyword field");
             this.Controls.Add(lblMinusTextBox);
             
             txtBoxSecondKeyword.Name = "txtBoxSecondKeyword";
@@ -1374,7 +1375,22 @@ namespace ResumeEngineV2
                 Directory.Delete("textResumes/", true);
             }
             System.IO.File.Delete("creds.xml");
+
+            //Create new creds file
+            using (FileStream fs = System.IO.File.Create("creds.xml"))
+            {
+                Byte[] info = new UTF8Encoding(true).GetBytes("<?xml version=\"1.0\" encoding=\"utf-8\"?>" + Environment.NewLine + "<credentials>" + Environment.NewLine + "<username>***</username>" + Environment.NewLine + "<password>***</password>" + Environment.NewLine + "</credentials>");
+                fs.Write(info, 0, info.Length);
+            }
+            Encrypt();
+
             MessageBox.Show("All temporary data has been successfully cleared from the user's machine!", "Success!", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+
+            //Logout user if not on login screen
+            if (btnLoginSubmit.Visible == false)
+            {
+                btnLogout_Click(sender, e);
+            }
         }
     }
 }

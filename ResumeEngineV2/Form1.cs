@@ -924,29 +924,9 @@ namespace ResumeEngineV2
                 }
 
                 //Incriment postDataCount if number of files is past limits
-                if (postDataCount == 0 && count > 199)
+                if (count > (199 + (200 * postDataCount)))
                 {
-                    postDataCount = 1;
-                }
-                else if (postDataCount == 1 && count > 399)
-                {
-                    postDataCount = 2;
-                }
-                else if (postDataCount == 2 && count > 599)
-                {
-                    postDataCount = 3;
-                }
-                else if (postDataCount == 3 && count > 799)
-                {
-                    postDataCount = 4;
-                }
-                else if (postDataCount == 4 && count > 999)
-                {
-                    postDataCount = 5;
-                }
-                else if (postDataCount == 5 && count > 1199)
-                {
-                    postDataCount = 6;
+                    postDataCount++;
                 }
 
                 //Send new progress bar value to backgroundWorker1_ProgressChanged as fields cannot be updated in backgroundWorker thread

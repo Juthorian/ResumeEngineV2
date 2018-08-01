@@ -443,12 +443,16 @@ namespace ResumeEngineV2
 
                 List<string> names = new List<string>();
 
+                Boolean isFolderFound = false;
+
                 //Loops through each folder
                 foreach (Folder f in fcol)
                 {
                     //If folder is named Text
-                    if (f.Name == "Original")
+                    if (f.Name == "Resumes")
                     {
+                        isFolderFound = true;
+
                         //Get all files under text folder
                         ctx.Load(f.Files);
                         ctx.ExecuteQuery();
@@ -467,6 +471,31 @@ namespace ResumeEngineV2
                         backgroundWorker1.RunWorkerAsync(arguments);
                         break;
                     }
+                }
+                //Folder containing resumes cannot be found
+                if (isFolderFound == false)
+                {
+                    MessageBox.Show("Resumes folder could not be found on SharePoint!", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+
+                    progressBar1.Visible = true;
+
+                    btnKeywordSubmit.Enabled = true;
+                    txtBoxKeyword.Enabled = true;
+                    btnLogout.Enabled = true;
+                    if (lblAddTextBox.Visible == true)
+                    {
+                        lblAddTextBox.Enabled = true;
+                    }
+                    else
+                    {
+                        lblMinusTextBox.Enabled = true;
+                        txtBoxSecondKeyword.Enabled = true;
+                        cmbWeight.Enabled = true;
+                    }
+                    txtBoxExperience.Enabled = true;
+                    btnClearData.Enabled = true;
+
+                    progressBar1.Value = 0;
                 }
             }
         }
@@ -588,7 +617,7 @@ namespace ResumeEngineV2
                 //Check if file is already in local storage if not not, need to download else grab contents of file
                 if (System.IO.File.Exists("textResumes/" + fileName + ".txt") == false)
                 {
-                    var filePath = web.ServerRelativeUrl + "/Shared%20Documents/Original/" + fileName;
+                    var filePath = web.ServerRelativeUrl + "/Shared%20Documents/Resumes/" + fileName;
                     //var filePathTxt = web.ServerRelativeUrl + "/Shared%20Documents/Text/" + fileName + ".txt";
                     FileInformation fileInformation = Microsoft.SharePoint.Client.File.OpenBinaryDirect((ClientContext)arguments[2], filePath);
                     string ext = System.IO.Path.GetExtension(fileName);
@@ -1209,7 +1238,7 @@ namespace ResumeEngineV2
         {
             if (System.IO.Path.GetExtension(namesOrdered[e.RowIndex]) == ".pdf")
             {
-                System.Diagnostics.Process.Start("https://aecon1.sharepoint.com/sites/bd/projectdoc/Shared%20Documents/Original/" + namesOrdered[e.RowIndex]);
+                System.Diagnostics.Process.Start("https://aecon1.sharepoint.com/sites/bd/projectdoc/Shared%20Documents/Resumes/" + namesOrdered[e.RowIndex]);
             }
             else
             {

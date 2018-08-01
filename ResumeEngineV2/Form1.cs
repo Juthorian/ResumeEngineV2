@@ -124,7 +124,7 @@ namespace ResumeEngineV2
         private void btnLoginSubmit_Click(object sender, EventArgs e)
         {
             //Verify login credentials
-            string targetSiteURL = @"https://aecon1.sharepoint.com/sites/bd/resume/";
+            string targetSiteURL = @"https://aecon1.sharepoint.com/sites/bd/projectdoc/";
 
             var login = textBoxUsername.Text;
             var password = textBoxPassword.Text;
@@ -350,7 +350,7 @@ namespace ResumeEngineV2
                 txtBoxExperience.Enabled = false;
                 btnClearData.Enabled = false;
 
-                string targetSiteURL = @"https://aecon1.sharepoint.com/sites/bd/resume/";
+                string targetSiteURL = @"https://aecon1.sharepoint.com/sites/bd/projectdoc/";
 
                 //Read credentials from creds.xml
                 //Decrypt failed, delete creds file, get user to login again
@@ -1209,7 +1209,7 @@ namespace ResumeEngineV2
         {
             if (System.IO.Path.GetExtension(namesOrdered[e.RowIndex]) == ".pdf")
             {
-                System.Diagnostics.Process.Start("https://aecon1.sharepoint.com/sites/bd/resume/Shared%20Documents/Original/" + namesOrdered[e.RowIndex]);
+                System.Diagnostics.Process.Start("https://aecon1.sharepoint.com/sites/bd/projectdoc/Shared%20Documents/Original/" + namesOrdered[e.RowIndex]);
             }
             else
             {

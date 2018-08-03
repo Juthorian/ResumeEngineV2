@@ -45,13 +45,13 @@
             this.lblUsername = new System.Windows.Forms.Label();
             this.lblPassword = new System.Windows.Forms.Label();
             this.resultsView = new System.Windows.Forms.DataGridView();
+            this.FileName = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Experience = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Percent = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.lblAddTextBox = new System.Windows.Forms.Label();
             this.cmbWeight = new System.Windows.Forms.ComboBox();
             this.txtBoxExperience = new System.Windows.Forms.TextBox();
             this.lblExperience = new System.Windows.Forms.Label();
-            this.FileName = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.Experience = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.Percent = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.btnClearData = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.resultsView)).BeginInit();
             this.SuspendLayout();
@@ -81,7 +81,7 @@
             // 
             // btnKeywordSubmit
             // 
-            this.btnKeywordSubmit.Location = new System.Drawing.Point(302, 61);
+            this.btnKeywordSubmit.Location = new System.Drawing.Point(302, 60);
             this.btnKeywordSubmit.Name = "btnKeywordSubmit";
             this.btnKeywordSubmit.Size = new System.Drawing.Size(75, 23);
             this.btnKeywordSubmit.TabIndex = 6;
@@ -202,6 +202,26 @@
             this.resultsView.TabStop = false;
             this.resultsView.CellDoubleClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.resultsView_CellClick);
             // 
+            // FileName
+            // 
+            this.FileName.HeaderText = "File Name";
+            this.FileName.Name = "FileName";
+            this.FileName.ReadOnly = true;
+            this.FileName.Width = 260;
+            // 
+            // Experience
+            // 
+            this.Experience.HeaderText = "Years of Experience";
+            this.Experience.Name = "Experience";
+            this.Experience.ReadOnly = true;
+            // 
+            // Percent
+            // 
+            this.Percent.HeaderText = "Percent Match";
+            this.Percent.Name = "Percent";
+            this.Percent.ReadOnly = true;
+            this.Percent.Width = 85;
+            // 
             // lblAddTextBox
             // 
             this.lblAddTextBox.AutoSize = true;
@@ -253,26 +273,6 @@
             this.lblExperience.Size = new System.Drawing.Size(122, 13);
             this.lblExperience.TabIndex = 8;
             this.lblExperience.Text = "Min Years of Experience";
-            // 
-            // FileName
-            // 
-            this.FileName.HeaderText = "File Name";
-            this.FileName.Name = "FileName";
-            this.FileName.ReadOnly = true;
-            this.FileName.Width = 260;
-            // 
-            // Experience
-            // 
-            this.Experience.HeaderText = "Years of Experience";
-            this.Experience.Name = "Experience";
-            this.Experience.ReadOnly = true;
-            // 
-            // Percent
-            // 
-            this.Percent.HeaderText = "Percent Match";
-            this.Percent.Name = "Percent";
-            this.Percent.ReadOnly = true;
-            this.Percent.Width = 85;
             // 
             // btnClearData
             // 

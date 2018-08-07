@@ -319,7 +319,33 @@ namespace ResumeEngineV2
             //If user enters first keyword in our lib, second keyword must also be in the lib
             else if (lblAddTextBox.Visible == false && (energyLib.Contains(txtBoxKeyword.Text, StringComparer.OrdinalIgnoreCase) || infrastructureLib.Contains(txtBoxKeyword.Text, StringComparer.OrdinalIgnoreCase) || miningLib.Contains(txtBoxKeyword.Text, StringComparer.OrdinalIgnoreCase) || concessionsLib.Contains(txtBoxKeyword.Text, StringComparer.OrdinalIgnoreCase) || otherLib.Contains(txtBoxKeyword.Text, StringComparer.OrdinalIgnoreCase)) && (!energyLib.Contains(txtBoxSecondKeyword.Text, StringComparer.OrdinalIgnoreCase) && !infrastructureLib.Contains(txtBoxSecondKeyword.Text, StringComparer.OrdinalIgnoreCase) && !miningLib.Contains(txtBoxSecondKeyword.Text, StringComparer.OrdinalIgnoreCase) && !concessionsLib.Contains(txtBoxSecondKeyword.Text, StringComparer.OrdinalIgnoreCase) && !otherLib.Contains(txtBoxSecondKeyword.Text, StringComparer.OrdinalIgnoreCase)))
             {
-                MessageBox.Show("Your first keyword is in our library and so the second keyword must also be in the library!\n\nList of Keywords:\n\nEnergy, Bruce, Cogeneration, Fabrication, Gas, Modules, Nuclear, Oil, OPG, Ontario Power Generation, Pipelines, Utilities\n\nInfrastructure, Airports, Asphalt, Bridges, Hydroelectric, Rail, Road, Transit, Tunnels, Water Treatment\n\nMining, Fabrication, Mechanical Works, Mine Site Development, Modules, Overburden Removal, Processing Facilities, Reclamation\n\nConcessions, Accounting, Bank, Equity Investments, Maintenance, Operations, Project Financing, Project Development, Public Private Partnership, P3s\n\nAdvisor, Boilermaker, Buyer, AutoCAD, CAD, Carpenter, Concrete, Contract, Controller, Controls, Coordinator,Counsel, Craft Recruiter, Customer Service Representative, Designer, Dockmaster, Document Control, Draftsperson, E & I, Electrical and Instrumentation, EHS, Environmental health and safety, Electrician, Engineer, Environment, Equipment, Estimator, Field Support, Network Support, Fitter, Welder, Foreperson, Foreman, Inspector, Ironwork, Labourer, Lead, Locator, Material, Operator, Pavement, PEng, Professional Engineer, Planner, Plumber, Project Design, Purchaser, Requisitioner, Risk, Scheduler,Specialist, Splicer, Superintendent, Supervisor, Support, Surveyor, Technical Services, Technician, Turnover, Vendor", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                string message = "Your first keyword is in our library and so the second keyword must also be in the library!\n\nList of Keywords:\n\n";
+                for (int i = 0; i < energyLib.Length; i++)
+                {
+                    message += energyLib[i] + ", ";
+                }
+                message = message.Remove(message.Length - 2, 2) + "\n\n";
+                for (int i = 0; i < infrastructureLib.Length; i++)
+                {
+                    message += infrastructureLib[i] + ", ";
+                }
+                message = message.Remove(message.Length - 2, 2) + "\n\n";
+                for (int i = 0; i < miningLib.Length; i++)
+                {
+                    message += miningLib[i] + ", ";
+                }
+                message = message.Remove(message.Length - 2, 2) + "\n\n";
+                for (int i = 0; i < concessionsLib.Length; i++)
+                {
+                    message += concessionsLib[i] + ", ";
+                }
+                message = message.Remove(message.Length - 2, 2) + "\n\n";
+                for (int i = 0; i < otherLib.Length; i++)
+                {
+                    message += otherLib[i] + ", ";
+                }
+                message = message.Remove(message.Length - 2, 2);
+                MessageBox.Show(message, "Error!", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
             }
             else
             {

@@ -104,6 +104,8 @@ namespace ResumeEngineV2
                 cmbWeight.Visible = false;
                 txtBoxExperience.Visible = false;
                 lblExperience.Visible = false;
+                txtBoxTitle.Visible = false;
+                lblTitle.Visible = false;
                 this.AcceptButton = btnLoginSubmit;
             }
             else
@@ -197,6 +199,8 @@ namespace ResumeEngineV2
                 cmbWeight.Visible = true;
                 txtBoxExperience.Visible = true;
                 lblExperience.Visible = true;
+                txtBoxTitle.Visible = true;
+                lblTitle.Visible = true;
                 this.AcceptButton = btnKeywordSubmit;
                 this.Text = "Resume Search Engine - Logged in as " + textBoxUsername.Text;
 
@@ -263,6 +267,7 @@ namespace ResumeEngineV2
             }
             cmbWeight.SelectedIndex = 9;
             txtBoxExperience.Text = "0";
+            txtBoxTitle.Text = "";
 
             //Only show login fields
             lblLogin.Visible = true;
@@ -293,6 +298,8 @@ namespace ResumeEngineV2
             cmbWeight.Enabled = false;
             txtBoxExperience.Visible = false;
             lblExperience.Visible = false;
+            txtBoxTitle.Visible = false;
+            lblTitle.Visible = false;
         }
 
         //Makes sure user input is valid and loads backgroundworker
@@ -374,6 +381,7 @@ namespace ResumeEngineV2
                     txtBoxSecondKeyword.Enabled = false;
                 }
                 txtBoxExperience.Enabled = false;
+                txtBoxTitle.Enabled = false;
                 btnClearData.Enabled = false;
 
                 string targetSiteURL = @"https://aecon1.sharepoint.com/sites/bd/projectdoc/";
@@ -406,6 +414,7 @@ namespace ResumeEngineV2
                     cmbWeight.Enabled = true;
                     lblAddTextBox.Enabled = true;
                     txtBoxExperience.Enabled = true;
+                    txtBoxTitle.Enabled = true;
                     btnClearData.Enabled = true;
                     btnLogout_Click(sender, e);
                     return;
@@ -453,6 +462,7 @@ namespace ResumeEngineV2
                     cmbWeight.Enabled = true;
                     lblAddTextBox.Enabled = true;
                     txtBoxExperience.Enabled = true;
+                    txtBoxTitle.Enabled = true;
                     btnClearData.Enabled = true;
                     btnLogout_Click(sender, e);
                     return;
@@ -519,6 +529,7 @@ namespace ResumeEngineV2
                         cmbWeight.Enabled = true;
                     }
                     txtBoxExperience.Enabled = true;
+                    txtBoxTitle.Enabled = true;
                     btnClearData.Enabled = true;
 
                     progressBar1.Value = 0;
@@ -755,6 +766,20 @@ namespace ResumeEngineV2
                     newConvText = System.IO.File.ReadAllText("textResumes/" + fileName + ".txt");
                 }
 
+                //Check if resume matches user entered title
+                bool isTitleFound = false;
+                if (txtBoxTitle.Text == "")
+                {
+                    isTitleFound = true;
+                }
+                else
+                {
+                    if (newConvText.IndexOf(txtBoxTitle.Text, StringComparison.OrdinalIgnoreCase) >= 0)
+                    {
+                        isTitleFound = true;
+                    }
+                }
+
                 //Calculate years of experience
                 bool inExperience = false;
                 int lowestYear = -1;
@@ -792,8 +817,8 @@ namespace ResumeEngineV2
                 int txtBoxOutExperience;
                 int.TryParse(txtBoxExperience.Text, out txtBoxOutExperience);
 
-                //Only use candidates with the necessary years of experience in the final results
-                if (experienceYears >= txtBoxOutExperience)
+                //Only use candidates with the necessary years of experience and title in the final results
+                if (experienceYears >= txtBoxOutExperience && isTitleFound == true)
                 {
                     links.Add(item.LinkingUri);
                     names.Add(fileName.Replace(".txt", ""));
@@ -1254,6 +1279,7 @@ namespace ResumeEngineV2
                 cmbWeight.Enabled = true;
             }
             txtBoxExperience.Enabled = true;
+            txtBoxTitle.Enabled = true;
             btnClearData.Enabled = true;
 
             progressBar1.Value = 0;

@@ -53,6 +53,8 @@
             this.txtBoxExperience = new System.Windows.Forms.TextBox();
             this.lblExperience = new System.Windows.Forms.Label();
             this.btnClearData = new System.Windows.Forms.Button();
+            this.lblTitle = new System.Windows.Forms.Label();
+            this.txtBoxTitle = new System.Windows.Forms.TextBox();
             ((System.ComponentModel.ISupportInitialize)(this.resultsView)).BeginInit();
             this.SuspendLayout();
             // 
@@ -284,11 +286,29 @@
             this.btnClearData.UseVisualStyleBackColor = true;
             this.btnClearData.Click += new System.EventHandler(this.btnClearData_Click);
             // 
+            // lblTitle
+            // 
+            this.lblTitle.AutoSize = true;
+            this.lblTitle.Location = new System.Drawing.Point(350, 124);
+            this.lblTitle.Name = "lblTitle";
+            this.lblTitle.Size = new System.Drawing.Size(27, 13);
+            this.lblTitle.TabIndex = 8;
+            this.lblTitle.Text = "Title";
+            // 
+            // txtBoxTitle
+            // 
+            this.txtBoxTitle.Location = new System.Drawing.Point(220, 121);
+            this.txtBoxTitle.Name = "txtBoxTitle";
+            this.txtBoxTitle.Size = new System.Drawing.Size(124, 20);
+            this.txtBoxTitle.TabIndex = 8;
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(875, 387);
+            this.Controls.Add(this.txtBoxTitle);
+            this.Controls.Add(this.lblTitle);
             this.Controls.Add(this.btnClearData);
             this.Controls.Add(this.lblExperience);
             this.Controls.Add(this.txtBoxExperience);
@@ -340,6 +360,8 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn Experience;
         private System.Windows.Forms.DataGridViewTextBoxColumn Percent;
         private System.Windows.Forms.Button btnClearData;
+        private System.Windows.Forms.Label lblTitle;
+        private System.Windows.Forms.TextBox txtBoxTitle;
     }
 }
 

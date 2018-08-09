@@ -1342,8 +1342,12 @@ namespace ResumeEngineV2
                 progressBar1.Visible = false;
                 for (int i = 0; i < namesOrdered.Count(); i++)
                 {
-                    resultsView.Rows.Add(namesOrdered[i], experienceOrdered[i], keyList[i]);
-                    resultsView.Rows[i].HeaderCell.Value = String.Format("{0}", resultsView.Rows[i].Index + 1);
+                    //Hide any resumes with 0% match rating
+                    if (keyList[i] != "0%")
+                    {
+                        resultsView.Rows.Add(namesOrdered[i], experienceOrdered[i], keyList[i]);
+                        resultsView.Rows[i].HeaderCell.Value = String.Format("{0}", resultsView.Rows[i].Index + 1);
+                    }
                 }
                 resultsView.Focus();
             }

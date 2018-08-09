@@ -17,6 +17,7 @@ using System.Windows.Forms;
 using System.Xml;
 using System.Net.NetworkInformation;
 using System.Drawing;
+using System.Text.RegularExpressions;
 
 namespace ResumeEngineV2
 {
@@ -833,141 +834,226 @@ namespace ResumeEngineV2
                         int numExactMatchesSecond = 0;
                         int numCategoryMatchesSecond = 0;
                         //Check occurances of keywords in resume
-                        foreach (string word in newConvText.Split(new char[] { ' ', ',', '.', '/', '(', ')' }, StringSplitOptions.RemoveEmptyEntries))
+                        if (whichLib == 0)
                         {
-                            if (whichLib == 0)
+                            for (int i = 0; i < energyLib.Length; i++)
                             {
-                                if (energyLib.Contains(word, StringComparer.OrdinalIgnoreCase))
+                                //Resume contains the keyword
+                                if (newConvText.IndexOf(energyLib[i], StringComparison.OrdinalIgnoreCase) >= 0)
                                 {
-                                    if (String.Equals((string)arguments[3], word, StringComparison.OrdinalIgnoreCase))
-                                    {
-                                        numExactMatches++;
-                                    }
-                                    else
-                                    {
-                                        numCategoryMatches++;
-                                    }
-                                }
-                            }
-                            else if (whichLib == 1)
-                            {
-                                if (infrastructureLib.Contains(word, StringComparer.OrdinalIgnoreCase))
-                                {
-                                    if (String.Equals((string)arguments[3], word, StringComparison.OrdinalIgnoreCase))
-                                    {
-                                        numExactMatches++;
-                                    }
-                                    else
-                                    {
-                                        numCategoryMatches++;
-                                    }
-                                }
-                            }
-                            else if (whichLib == 2)
-                            {
-                                if (miningLib.Contains(word, StringComparer.OrdinalIgnoreCase))
-                                {
-                                    if (String.Equals((string)arguments[3], word, StringComparison.OrdinalIgnoreCase))
-                                    {
-                                        numExactMatches++;
-                                    }
-                                    else
-                                    {
-                                        numCategoryMatches++;
-                                    }
-                                }
-                            }
-                            else if (whichLib == 3)
-                            {
-                                if (concessionsLib.Contains(word, StringComparer.OrdinalIgnoreCase))
-                                {
-                                    if (String.Equals((string)arguments[3], word, StringComparison.OrdinalIgnoreCase))
-                                    {
-                                        numExactMatches++;
-                                    }
-                                    else
-                                    {
-                                        numCategoryMatches++;
-                                    }
-                                }
-                            }
-                            else if (whichLib == 4)
-                            {
-                                if (otherLib.Contains(word, StringComparer.OrdinalIgnoreCase))
-                                {
-                                    if (word.IndexOf((string)arguments[3], StringComparison.OrdinalIgnoreCase) >= 0)
-                                    {
-                                        numExactMatches++;
-                                    }
-                                }
-                            }
+                                    //Count occurences
+                                    int occurences = Regex.Matches(newConvText, @"\b" + energyLib[i], RegexOptions.IgnoreCase).Count;
 
-                            //Do it again for second keyword if the field exists
-                            if (!String.IsNullOrEmpty(postData2[0]))
+                                    //Exact match
+                                    if (String.Equals((string)arguments[3], energyLib[i], StringComparison.OrdinalIgnoreCase))
+                                    {
+                                        numExactMatches = numExactMatches + occurences;
+                                    }
+                                    //Categorical match
+                                    else
+                                    {
+                                        numCategoryMatches = numCategoryMatches + occurences;
+                                    }
+                                }
+                            }
+                        }
+                        else if (whichLib == 1)
+                        {
+                            for (int i = 0; i < infrastructureLib.Length; i++)
                             {
-                                if (whichLib2 == 0)
+                                //Resume contains the keyword
+                                if (newConvText.IndexOf(infrastructureLib[i], StringComparison.OrdinalIgnoreCase) >= 0)
                                 {
-                                    if (energyLib.Contains(word, StringComparer.OrdinalIgnoreCase))
+                                    //Count occurences
+                                    int occurences = Regex.Matches(newConvText, @"\b" + infrastructureLib[i], RegexOptions.IgnoreCase).Count;
+
+                                    //Exact match
+                                    if (String.Equals((string)arguments[3], infrastructureLib[i], StringComparison.OrdinalIgnoreCase))
                                     {
-                                        if (String.Equals((string)arguments[6], word, StringComparison.OrdinalIgnoreCase))
+                                        numExactMatches = numExactMatches + occurences;
+                                    }
+                                    //Categorical match
+                                    else
+                                    {
+                                        numCategoryMatches = numCategoryMatches + occurences;
+                                    }
+                                }
+                            }
+                        }
+                        else if (whichLib == 2)
+                        {
+                            for (int i = 0; i < miningLib.Length; i++)
+                            {
+                                //Resume contains the keyword
+                                if (newConvText.IndexOf(miningLib[i], StringComparison.OrdinalIgnoreCase) >= 0)
+                                {
+                                    //Count occurences
+                                    int occurences = Regex.Matches(newConvText, @"\b" + miningLib[i], RegexOptions.IgnoreCase).Count;
+
+                                    //Exact match
+                                    if (String.Equals((string)arguments[3], miningLib[i], StringComparison.OrdinalIgnoreCase))
+                                    {
+                                        numExactMatches = numExactMatches + occurences;
+                                    }
+                                    //Categorical match
+                                    else
+                                    {
+                                        numCategoryMatches = numCategoryMatches + occurences;
+                                    }
+                                }
+                            }
+                        }
+                        else if (whichLib == 3)
+                        {
+                            for (int i = 0; i < concessionsLib.Length; i++)
+                            {
+                                //Resume contains the keyword
+                                if (newConvText.IndexOf(concessionsLib[i], StringComparison.OrdinalIgnoreCase) >= 0)
+                                {
+                                    //Count occurences
+                                    int occurences = Regex.Matches(newConvText, @"\b" + concessionsLib[i], RegexOptions.IgnoreCase).Count;
+
+                                    //Exact match
+                                    if (String.Equals((string)arguments[3], concessionsLib[i], StringComparison.OrdinalIgnoreCase))
+                                    {
+                                        numExactMatches = numExactMatches + occurences;
+                                    }
+                                    //Categorical match
+                                    else
+                                    {
+                                        numCategoryMatches = numCategoryMatches + occurences;
+                                    }
+                                }
+                            }
+                        }
+                        else if (whichLib == 4)
+                        {
+                            for (int i = 0; i < otherLib.Length; i++)
+                            {
+                                //Resume contains the keyword
+                                if (newConvText.IndexOf(otherLib[i], StringComparison.OrdinalIgnoreCase) >= 0)
+                                {
+                                    //Count occurences
+                                    int occurences = Regex.Matches(newConvText, @"\b" + otherLib[i], RegexOptions.IgnoreCase).Count;
+
+                                    //Exact match
+                                    if (String.Equals((string)arguments[3], otherLib[i], StringComparison.OrdinalIgnoreCase))
+                                    {
+                                        numExactMatches = numExactMatches + occurences;
+                                    }
+                                }
+                            }
+                        }
+
+                        //Do it again for second keyword if the field exists
+                        if (!String.IsNullOrEmpty(postData2[0]))
+                        {
+                            if (whichLib2 == 0)
+                            {
+                                for (int i = 0; i < energyLib.Length; i++)
+                                {
+                                    //Resume contains the keyword
+                                    if (newConvText.IndexOf(energyLib[i], StringComparison.OrdinalIgnoreCase) >= 0)
+                                    {
+                                        //Count occurences
+                                        int occurences = Regex.Matches(newConvText, @"\b" + energyLib[i], RegexOptions.IgnoreCase).Count;
+
+                                        //Exact match
+                                        if (String.Equals((string)arguments[6], energyLib[i], StringComparison.OrdinalIgnoreCase))
                                         {
-                                            numExactMatchesSecond++;
+                                            numExactMatchesSecond = numExactMatchesSecond + occurences;
                                         }
+                                        //Categorical match
                                         else
                                         {
-                                            numCategoryMatchesSecond++;
+                                            numCategoryMatchesSecond = numCategoryMatchesSecond + occurences;
                                         }
                                     }
                                 }
-                                else if (whichLib2 == 1)
+                            }
+                            if (whichLib2 == 1)
+                            {
+                                for (int i = 0; i < infrastructureLib.Length; i++)
                                 {
-                                    if (infrastructureLib.Contains(word, StringComparer.OrdinalIgnoreCase))
+                                    //Resume contains the keyword
+                                    if (newConvText.IndexOf(infrastructureLib[i], StringComparison.OrdinalIgnoreCase) >= 0)
                                     {
-                                        if (String.Equals((string)arguments[6], word, StringComparison.OrdinalIgnoreCase))
+                                        //Count occurences
+                                        int occurences = Regex.Matches(newConvText, @"\b" + infrastructureLib[i], RegexOptions.IgnoreCase).Count;
+
+                                        //Exact match
+                                        if (String.Equals((string)arguments[6], infrastructureLib[i], StringComparison.OrdinalIgnoreCase))
                                         {
-                                            numExactMatchesSecond++;
+                                            numExactMatchesSecond = numExactMatchesSecond + occurences;
                                         }
+                                        //Categorical match
                                         else
                                         {
-                                            numCategoryMatchesSecond++;
+                                            numCategoryMatchesSecond = numCategoryMatchesSecond + occurences;
                                         }
                                     }
                                 }
-                                else if (whichLib2 == 2)
+                            }
+                            if (whichLib2 == 2)
+                            {
+                                for (int i = 0; i < miningLib.Length; i++)
                                 {
-                                    if (miningLib.Contains(word, StringComparer.OrdinalIgnoreCase))
+                                    //Resume contains the keyword
+                                    if (newConvText.IndexOf(miningLib[i], StringComparison.OrdinalIgnoreCase) >= 0)
                                     {
-                                        if (String.Equals((string)arguments[6], word, StringComparison.OrdinalIgnoreCase))
+                                        //Count occurences
+                                        int occurences = Regex.Matches(newConvText, @"\b" + miningLib[i], RegexOptions.IgnoreCase).Count;
+
+                                        //Exact match
+                                        if (String.Equals((string)arguments[6], miningLib[i], StringComparison.OrdinalIgnoreCase))
                                         {
-                                            numExactMatchesSecond++;
+                                            numExactMatchesSecond = numExactMatchesSecond + occurences;
                                         }
+                                        //Categorical match
                                         else
                                         {
-                                            numCategoryMatchesSecond++;
+                                            numCategoryMatchesSecond = numCategoryMatchesSecond + occurences;
                                         }
                                     }
                                 }
-                                else if (whichLib2 == 3)
+                            }
+                            if (whichLib2 == 3)
+                            {
+                                for (int i = 0; i < concessionsLib.Length; i++)
                                 {
-                                    if (concessionsLib.Contains(word, StringComparer.OrdinalIgnoreCase))
+                                    //Resume contains the keyword
+                                    if (newConvText.IndexOf(concessionsLib[i], StringComparison.OrdinalIgnoreCase) >= 0)
                                     {
-                                        if (String.Equals((string)arguments[6], word, StringComparison.OrdinalIgnoreCase))
+                                        //Count occurences
+                                        int occurences = Regex.Matches(newConvText, @"\b" + concessionsLib[i], RegexOptions.IgnoreCase).Count;
+
+                                        //Exact match
+                                        if (String.Equals((string)arguments[6], concessionsLib[i], StringComparison.OrdinalIgnoreCase))
                                         {
-                                            numExactMatchesSecond++;
+                                            numExactMatchesSecond = numExactMatchesSecond + occurences;
                                         }
+                                        //Categorical match
                                         else
                                         {
-                                            numCategoryMatchesSecond++;
+                                            numCategoryMatchesSecond = numCategoryMatchesSecond + occurences;
                                         }
                                     }
                                 }
-                                else if (whichLib2 == 4)
+                            }
+                            if (whichLib2 == 4)
+                            {
+                                for (int i = 0; i < otherLib.Length; i++)
                                 {
-                                    if (otherLib.Contains(word, StringComparer.OrdinalIgnoreCase))
+                                    //Resume contains the keyword
+                                    if (newConvText.IndexOf(otherLib[i], StringComparison.OrdinalIgnoreCase) >= 0)
                                     {
-                                        if (word.IndexOf((string)arguments[6], StringComparison.OrdinalIgnoreCase) >= 0)
+                                        //Count occurences
+                                        int occurences = Regex.Matches(newConvText, @"\b" + otherLib[i], RegexOptions.IgnoreCase).Count;
+
+                                        //Exact match
+                                        if (String.Equals((string)arguments[6], otherLib[i], StringComparison.OrdinalIgnoreCase))
                                         {
-                                            numExactMatchesSecond++;
+                                            numExactMatchesSecond = numExactMatchesSecond + occurences;
                                         }
                                     }
                                 }

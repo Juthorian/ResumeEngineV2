@@ -544,6 +544,7 @@ namespace ResumeEngineV2
             List<object> arguments = e.Argument as List<object>;
             int totalCount = (int)arguments[5];
             int count = 0;
+            int resumeUseCount = 0;
             List<string> names = (System.Collections.Generic.List<string>)arguments[4];
             List<string> links = new List<string>();
             List<int> experience = new List<int>();
@@ -821,6 +822,7 @@ namespace ResumeEngineV2
                 //Only use candidates with the necessary years of experience and title in the final results
                 if (experienceYears >= txtBoxOutExperience && isTitleFound == true)
                 {
+                    resumeUseCount++;
                     links.Add(item.LinkingUri);
                     names.Add(fileName.Replace(".txt", ""));
                     experience.Add(experienceYears);
@@ -1090,7 +1092,7 @@ namespace ResumeEngineV2
                 }
 
                 //Incriment postDataCount if number of files is past limits
-                if (count > (199 + (200 * postDataCount)))
+                if (resumeUseCount > (199 + (200 * postDataCount)))
                 {
                     postDataCount++;
                 }

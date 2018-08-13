@@ -43,6 +43,7 @@ namespace ResumeEngineV2
         public Form1()
         {
             InitializeComponent();
+
             //Overlays progress bar ontop of gridview where results are displayed
             progressBar1.BringToFront();
 
@@ -56,10 +57,10 @@ namespace ResumeEngineV2
             tt.SetToolTip(btnClearData, "If something is going wrong click this button to delete your local data. This will log you out as well as increase the time it takes to search on the first run but may resolve your issue");
             tt.SetToolTip(cmbWeight, "Weight for first keyword field");
 
-            //Checks to see if creds.xml exists, if not creates file
-            if (System.IO.File.Exists("creds.xml") == false)
+            //Checks to see if creds.txt exists, if not creates file
+            if (System.IO.File.Exists("creds.txt") == false)
             {
-                using (FileStream fs = System.IO.File.Create("creds.xml"))
+                using (FileStream fs = System.IO.File.Create("creds.txt"))
                 {
                     Byte[] info = new UTF8Encoding(true).GetBytes("<?xml version=\"1.0\" encoding=\"utf-8\"?>" + Environment.NewLine + "<credentials>" + Environment.NewLine + "<username>***</username>" + Environment.NewLine + "<password>***</password>" + Environment.NewLine + "</credentials>");
                     fs.Write(info, 0, info.Length);
@@ -67,26 +68,26 @@ namespace ResumeEngineV2
                 Encrypt();
             }
             XmlDocument doc;
-            //Loads in xml data in creds.xml
+            //Loads in xml data in creds.txt
             try
             {
                 Decrypt();
                 doc = new XmlDocument();
-                doc.Load("creds.xml");
+                doc.Load("creds.txt");
                 Encrypt();
             }
             //Problem with file, delete it create new one with *** as username and pass which will force user to login in again
             catch
             {
                 MessageBox.Show("Failed to open data file. You will need to login in again!", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
-                System.IO.File.Delete("creds.xml");
-                using (FileStream fs = System.IO.File.Create("creds.xml"))
+                System.IO.File.Delete("creds.txt");
+                using (FileStream fs = System.IO.File.Create("creds.txt"))
                 {
                     Byte[] info = new UTF8Encoding(true).GetBytes("<?xml version=\"1.0\" encoding=\"utf-8\"?>" + Environment.NewLine + "<credentials>" + Environment.NewLine + "<username>***</username>" + Environment.NewLine + "<password>***</password>" + Environment.NewLine + "</credentials>");
                     fs.Write(info, 0, info.Length);
                 }
                 doc = new XmlDocument();
-                doc.Load("creds.xml");
+                doc.Load("creds.txt");
                 Encrypt();
             }
 
@@ -148,7 +149,7 @@ namespace ResumeEngineV2
                 ctx.Load(web);
                 ctx.ExecuteQuery();
 
-                //Load creds.xml and add user login credentials
+                //Load creds.txt and add user login credentials
                 try
                 {
                     Decrypt();
@@ -157,12 +158,12 @@ namespace ResumeEngineV2
                 {
                     MessageBox.Show("Failed to decrypt credentials file. Logging out!", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
 
-                    if (System.IO.File.Exists("creds.xml") == true)
+                    if (System.IO.File.Exists("creds.txt") == true)
                     {
-                        System.IO.File.Delete("creds.xml");
+                        System.IO.File.Delete("creds.txt");
                     }
 
-                    using (FileStream fs = System.IO.File.Create("creds.xml"))
+                    using (FileStream fs = System.IO.File.Create("creds.txt"))
                     {
                         Byte[] info = new UTF8Encoding(true).GetBytes("<?xml version=\"1.0\" encoding=\"utf-8\"?>" + Environment.NewLine + "<credentials>" + Environment.NewLine + "<username>***</username>" + Environment.NewLine + "<password>***</password>" + Environment.NewLine + "</credentials>");
                         fs.Write(info, 0, info.Length);
@@ -174,10 +175,10 @@ namespace ResumeEngineV2
                 }
 
                 XmlDocument doc = new XmlDocument();
-                doc.Load("creds.xml");
+                doc.Load("creds.txt");
                 doc.DocumentElement.SelectSingleNode("/credentials/username").InnerText = textBoxUsername.Text;
                 doc.DocumentElement.SelectSingleNode("/credentials/password").InnerText = textBoxPassword.Text;
-                doc.Save("creds.xml");
+                doc.Save("creds.txt");
                 Encrypt();
 
                 //Hide login fields
@@ -231,12 +232,12 @@ namespace ResumeEngineV2
             {
                 MessageBox.Show("Failed to decrypt credentials file. Logging out!", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
 
-                if (System.IO.File.Exists("creds.xml") == true)
+                if (System.IO.File.Exists("creds.txt") == true)
                 {
-                    System.IO.File.Delete("creds.xml");
+                    System.IO.File.Delete("creds.txt");
                 }
 
-                using (FileStream fs = System.IO.File.Create("creds.xml"))
+                using (FileStream fs = System.IO.File.Create("creds.txt"))
                 {
                     Byte[] info = new UTF8Encoding(true).GetBytes("<?xml version=\"1.0\" encoding=\"utf-8\"?>" + Environment.NewLine + "<credentials>" + Environment.NewLine + "<username>***</username>" + Environment.NewLine + "<password>***</password>" + Environment.NewLine + "</credentials>");
                     fs.Write(info, 0, info.Length);
@@ -247,10 +248,10 @@ namespace ResumeEngineV2
                 return;
             }
             XmlDocument doc = new XmlDocument();
-            doc.Load("creds.xml");
+            doc.Load("creds.txt");
             doc.DocumentElement.SelectSingleNode("/credentials/username").InnerText = "***";
             doc.DocumentElement.SelectSingleNode("/credentials/password").InnerText = "***";
-            doc.Save("creds.xml");
+            doc.Save("creds.txt");
             Encrypt();
 
             //Whipe data stored in fields
@@ -387,7 +388,7 @@ namespace ResumeEngineV2
 
                 string targetSiteURL = @"https://aecon1.sharepoint.com/sites/bd/projectdoc/";
 
-                //Read credentials from creds.xml
+                //Read credentials from creds.txt
                 //Decrypt failed, delete creds file, get user to login again
                 try
                 {
@@ -397,12 +398,12 @@ namespace ResumeEngineV2
                 {
                     MessageBox.Show("Failed to decrypt credentials file. Logging out!", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
 
-                    if (System.IO.File.Exists("creds.xml") == true)
+                    if (System.IO.File.Exists("creds.txt") == true)
                     {
-                        System.IO.File.Delete("creds.xml");
+                        System.IO.File.Delete("creds.txt");
                     }
                         
-                    using (FileStream fs = System.IO.File.Create("creds.xml"))
+                    using (FileStream fs = System.IO.File.Create("creds.txt"))
                     {
                         Byte[] info = new UTF8Encoding(true).GetBytes("<?xml version=\"1.0\" encoding=\"utf-8\"?>" + Environment.NewLine + "<credentials>" + Environment.NewLine + "<username>***</username>" + Environment.NewLine + "<password>***</password>" + Environment.NewLine + "</credentials>");
                         fs.Write(info, 0, info.Length);
@@ -421,7 +422,7 @@ namespace ResumeEngineV2
                     return;
                 }
                 XmlDocument doc = new XmlDocument();
-                doc.Load("creds.xml");
+                doc.Load("creds.txt");
                 Encrypt();
 
                 var login = doc.DocumentElement.SelectSingleNode("/credentials/username").InnerText;
@@ -1390,10 +1391,10 @@ namespace ResumeEngineV2
             }
         }
 
-        //Encrypt creds.xml file
+        //Encrypt creds.txt file
         private void Encrypt()
         {
-            string text = System.IO.File.ReadAllText("creds.xml");
+            string text = System.IO.File.ReadAllText("creds.txt");
             byte[] key = getKey();
 
             SymmetricAlgorithm algorithm = DES.Create();
@@ -1401,13 +1402,13 @@ namespace ResumeEngineV2
             byte[] inputbuffer = Encoding.Unicode.GetBytes(text);
             byte[] outputBuffer = transform.TransformFinalBlock(inputbuffer, 0, inputbuffer.Length);
 
-            System.IO.File.WriteAllText(@"creds.xml", Convert.ToBase64String(outputBuffer));
+            System.IO.File.WriteAllText(@"creds.txt", Convert.ToBase64String(outputBuffer));
         }
 
-        //Decrypt creds.xml file
+        //Decrypt creds.txt file
         private void Decrypt()
         {
-            string text = System.IO.File.ReadAllText("creds.xml");
+            string text = System.IO.File.ReadAllText("creds.txt");
             byte[] key = getKey();
 
             SymmetricAlgorithm algorithm = DES.Create();
@@ -1415,7 +1416,7 @@ namespace ResumeEngineV2
             byte[] inputbuffer = Convert.FromBase64String(text);
             byte[] outputBuffer = transform.TransformFinalBlock(inputbuffer, 0, inputbuffer.Length);
 
-            System.IO.File.WriteAllText(@"creds.xml", Encoding.Unicode.GetString(outputBuffer));
+            System.IO.File.WriteAllText(@"creds.txt", Encoding.Unicode.GetString(outputBuffer));
         }
 
         //Generates key for encryption
@@ -1527,10 +1528,10 @@ namespace ResumeEngineV2
                 }
                 Directory.Delete("textResumes/", true);
             }
-            System.IO.File.Delete("creds.xml");
+            System.IO.File.Delete("creds.txt");
 
             //Create new creds file
-            using (FileStream fs = System.IO.File.Create("creds.xml"))
+            using (FileStream fs = System.IO.File.Create("creds.txt"))
             {
                 Byte[] info = new UTF8Encoding(true).GetBytes("<?xml version=\"1.0\" encoding=\"utf-8\"?>" + Environment.NewLine + "<credentials>" + Environment.NewLine + "<username>***</username>" + Environment.NewLine + "<password>***</password>" + Environment.NewLine + "</credentials>");
                 fs.Write(info, 0, info.Length);

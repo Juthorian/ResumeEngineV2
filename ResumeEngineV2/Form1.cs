@@ -1595,6 +1595,23 @@ namespace ResumeEngineV2
             }
             Encrypt();
 
+            //Reload LibraryCSV.txt with default library values
+            //Clear values
+            energyLib.Clear();
+            infrastructureLib.Clear();
+            miningLib.Clear();
+            concessionsLib.Clear();
+            otherLib.Clear();
+            //Add defaults
+            energyLib.AddRange(new string[] { "Energy", "Bruce", "Cogeneration", "Fabrication", "Gas", "Module", "Modules", "Nuclear", "Oil", "OPG", "Ontario Power Generation", "Pipeline", "Pipelines", "Utilities" });
+            infrastructureLib.AddRange(new string[] { "Infrastructure", "Airport", "Airports", "Asphalt", "Bridge", "Bridges", "Hydroelectric", "Rail", "Road", "Roads", "Transit", "Tunnel", "Tunnels", "Water Treatment" });
+            miningLib.AddRange(new string[] { "Mining", "Fabrication", "Mechanical Works", "Mine Site Development", "Module", "Modules", "Overburden Removal", "Processing Facilities", "Reclamation" });
+            concessionsLib.AddRange(new string[] { "Concessions", "Accounting", "Bank", "Banks", "Equity Investments", "Maintenance", "Operations", "Project Financing", "Project Development", "Public Private Partnership", "P3" });
+            otherLib.AddRange(new string[] { "Advisor", "Boilermaker", "Buyer", "AutoCAD", "CAD", "Carpenter", "Concrete", "Contract", "Controller", "Controls", "Coordinator", "Counsel", "Craft Recruiter", "Customer Service Representative", "Designer", "Dockmaster", "Document Control", "Draftsperson", "E&I", "Electrical and Instrumentation", "EHS", "Environmental health and safety", "Electrician", "Engineer", "Environment", "Equipment", "Estimator", "Field Support", "Network Support", "Fitter", "Welder", "Foreperson", "Foreman", "Inspector", "Ironwork", "Labourer", "Lead", "Locator", "Material", "Operator", "Pavement", "PEng", "Professional Engineer", "Planner", "Plumber", "Project Design", "Purchaser", "Requisitioner", "Risk", "Scheduler", "Specialist", "Splicer", "Superintendent", "Supervisor", "Support", "Surveyor", "Technical Services", "Technician", "Turnover", "Vendor" });
+            string newDefaults = String.Join(",", energyLib.ToArray()) + Environment.NewLine + String.Join(",", infrastructureLib.ToArray()) + Environment.NewLine + String.Join(",", miningLib.ToArray()) + Environment.NewLine + String.Join(",", concessionsLib.ToArray()) + Environment.NewLine + String.Join(",", otherLib.ToArray());
+            //Write new defaults to file
+            System.IO.File.WriteAllText("LibraryCSV.txt", newDefaults);
+
             MessageBox.Show("All temporary data has been successfully cleared from the user's machine!", "Success!", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
 
             //Logout user if not on login screen

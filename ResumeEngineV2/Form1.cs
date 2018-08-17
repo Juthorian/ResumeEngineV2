@@ -32,12 +32,12 @@ namespace ResumeEngineV2
         Label lblMinusTextBox;
         TextBox txtBoxSecondKeyword;
 
-        //Library keywords
-        string[] energyLib = { "Energy", "Bruce", "Cogeneration", "Fabrication", "Gas", "Module", "Modules", "Nuclear", "Oil", "OPG", "Ontario Power Generation", "Pipeline", "Pipelines", "Utilities" };
-        string[] infrastructureLib = { "Infrastructure", "Airport", "Airports", "Asphalt", "Bridge", "Bridges", "Hydroelectric", "Rail", "Road", "Roads", "Transit", "Tunnel", "Tunnels", "Water Treatment" };
-        string[] miningLib = { "Mining", "Fabrication", "Mechanical Works", "Mine Site Development", "Module", "Modules", "Overburden Removal", "Processing Facilities", "Reclamation" };
-        string[] concessionsLib = { "Concessions", "Accounting", "Bank", "Banks", "Equity Investments", "Maintenance", "Operations", "Project Financing", "Project Development", "Public Private Partnership", "P3" };
-        string[] otherLib = { "Advisor", "Boilermaker", "Buyer", "AutoCAD", "CAD", "Carpenter", "Concrete", "Contract", "Controller", "Controls", "Coordinator", "Counsel", "Craft Recruiter", "Customer Service Representative", "Designer", "Dockmaster", "Document Control", "Draftsperson", "E&I", "Electrical and Instrumentation", "EHS", "Environmental health and safety", "Electrician", "Engineer", "Environment", "Equipment", "Estimator", "Field Support", "Network Support", "Fitter", "Welder", "Foreperson", "Foreman", "Inspector", "Ironwork", "Labourer", "Lead", "Locator", "Material", "Operator", "Pavement", "PEng", "Professional Engineer", "Planner", "Plumber", "Project Design", "Purchaser", "Requisitioner", "Risk", "Scheduler", "Specialist", "Splicer", "Superintendent", "Supervisor", "Support", "Surveyor", "Technical Services", "Technician", "Turnover", "Vendor" };
+        //Library default keywords, keywords can be modified from LibraryCSV.txt file in root directory but categories cannot be changed
+        List<string> energyLib = new List<string>(new string[] { "Energy", "Bruce", "Cogeneration", "Fabrication", "Gas", "Module", "Modules", "Nuclear", "Oil", "OPG", "Ontario Power Generation", "Pipeline", "Pipelines", "Utilities" });
+        List<string> infrastructureLib = new List<string>(new string[] { "Infrastructure", "Airport", "Airports", "Asphalt", "Bridge", "Bridges", "Hydroelectric", "Rail", "Road", "Roads", "Transit", "Tunnel", "Tunnels", "Water Treatment" });
+        List<string> miningLib = new List<string>(new string[] { "Mining", "Fabrication", "Mechanical Works", "Mine Site Development", "Module", "Modules", "Overburden Removal", "Processing Facilities", "Reclamation" });
+        List<string> concessionsLib = new List<string>(new string[] { "Concessions", "Accounting", "Bank", "Banks", "Equity Investments", "Maintenance", "Operations", "Project Financing", "Project Development", "Public Private Partnership", "P3" });
+        List<string> otherLib = new List<string>(new string[] { "Advisor", "Boilermaker", "Buyer", "AutoCAD", "CAD", "Carpenter", "Concrete", "Contract", "Controller", "Controls", "Coordinator", "Counsel", "Craft Recruiter", "Customer Service Representative", "Designer", "Dockmaster", "Document Control", "Draftsperson", "E&I", "Electrical and Instrumentation", "EHS", "Environmental health and safety", "Electrician", "Engineer", "Environment", "Equipment", "Estimator", "Field Support", "Network Support", "Fitter", "Welder", "Foreperson", "Foreman", "Inspector", "Ironwork", "Labourer", "Lead", "Locator", "Material", "Operator", "Pavement", "PEng", "Professional Engineer", "Planner", "Plumber", "Project Design", "Purchaser", "Requisitioner", "Risk", "Scheduler", "Specialist", "Splicer", "Superintendent", "Supervisor", "Support", "Surveyor", "Technical Services", "Technician", "Turnover", "Vendor" });
 
         //Initial behaviour on load, decided whether to show login view or not
         public Form1()
@@ -56,6 +56,61 @@ namespace ResumeEngineV2
             tt.SetToolTip(lblUsername, "Example: jbraham@aecon.com");
             tt.SetToolTip(btnClearData, "If something is going wrong click this button to delete your local data. This will log you out as well as increase the time it takes to search on the first run but may resolve your issue");
             tt.SetToolTip(cmbWeight, "Weight for first keyword field");
+
+            //Try and import library from LibraryCSV.txt file
+            try
+            {
+                var lines = System.IO.File.ReadLines("LibraryCSV.txt");
+                //Can only be 5 or will throw error and use default lib
+                int lineCount = System.IO.File.ReadLines("LibraryCSV.txt").Count();
+                //Line count incorrect, throw error and use default lib
+                if (lineCount != 5 || string.IsNullOrWhiteSpace(lines.ElementAt(0)) || string.IsNullOrWhiteSpace(lines.ElementAt(1)) || string.IsNullOrWhiteSpace(lines.ElementAt(2)) || string.IsNullOrWhiteSpace(lines.ElementAt(3)) || string.IsNullOrWhiteSpace(lines.ElementAt(4)))
+                {
+                    throw new ArgumentException("Incorrect number of lines in LibraryCSV.txt file.\nCan only be 5 lines for energy, infrastructure, mining, concessions, and other.\nLines also cannot be empty");
+                }
+                //Whipe default lib since we are using file now
+                energyLib.Clear();
+                infrastructureLib.Clear();
+                miningLib.Clear();
+                concessionsLib.Clear();
+                otherLib.Clear();
+
+                int currentLineCount = 0;
+                //Go through each line (categories) of the file
+                foreach (var line in lines)
+                {
+                    //Load array with line contents
+                    var values = line.Split(',');
+                    foreach (var item in values)
+                    {
+                        if (currentLineCount == 0)
+                        {
+                            energyLib.Add(item);
+                        }
+                        else if (currentLineCount == 1)
+                        {
+                            infrastructureLib.Add(item);
+                        }
+                        else if (currentLineCount == 2)
+                        {
+                            miningLib.Add(item);
+                        }
+                        else if (currentLineCount == 3)
+                        {
+                            concessionsLib.Add(item);
+                        }
+                        else
+                        {
+                            otherLib.Add(item);
+                        }
+                    }
+                    currentLineCount++;
+                }
+            }
+            catch (Exception e)
+            {
+                MessageBox.Show(e.Message + "\nUsing default library instead of file.", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+            }
 
             //Checks to see if creds.txt exists, if not creates file
             if (System.IO.File.Exists("creds.txt") == false)
@@ -329,27 +384,27 @@ namespace ResumeEngineV2
             else if (lblAddTextBox.Visible == false && (energyLib.Contains(txtBoxKeyword.Text, StringComparer.OrdinalIgnoreCase) || infrastructureLib.Contains(txtBoxKeyword.Text, StringComparer.OrdinalIgnoreCase) || miningLib.Contains(txtBoxKeyword.Text, StringComparer.OrdinalIgnoreCase) || concessionsLib.Contains(txtBoxKeyword.Text, StringComparer.OrdinalIgnoreCase) || otherLib.Contains(txtBoxKeyword.Text, StringComparer.OrdinalIgnoreCase)) && (!energyLib.Contains(txtBoxSecondKeyword.Text, StringComparer.OrdinalIgnoreCase) && !infrastructureLib.Contains(txtBoxSecondKeyword.Text, StringComparer.OrdinalIgnoreCase) && !miningLib.Contains(txtBoxSecondKeyword.Text, StringComparer.OrdinalIgnoreCase) && !concessionsLib.Contains(txtBoxSecondKeyword.Text, StringComparer.OrdinalIgnoreCase) && !otherLib.Contains(txtBoxSecondKeyword.Text, StringComparer.OrdinalIgnoreCase)))
             {
                 string message = "Your first keyword is in our library and so the second keyword must also be in the library!\n\nList of Keywords:\n\n";
-                for (int i = 0; i < energyLib.Length; i++)
+                for (int i = 0; i < energyLib.Count; i++)
                 {
                     message += energyLib[i] + ", ";
                 }
                 message = message.Remove(message.Length - 2, 2) + "\n\n";
-                for (int i = 0; i < infrastructureLib.Length; i++)
+                for (int i = 0; i < infrastructureLib.Count; i++)
                 {
                     message += infrastructureLib[i] + ", ";
                 }
                 message = message.Remove(message.Length - 2, 2) + "\n\n";
-                for (int i = 0; i < miningLib.Length; i++)
+                for (int i = 0; i < miningLib.Count; i++)
                 {
                     message += miningLib[i] + ", ";
                 }
                 message = message.Remove(message.Length - 2, 2) + "\n\n";
-                for (int i = 0; i < concessionsLib.Length; i++)
+                for (int i = 0; i < concessionsLib.Count; i++)
                 {
                     message += concessionsLib[i] + ", ";
                 }
                 message = message.Remove(message.Length - 2, 2) + "\n\n";
-                for (int i = 0; i < otherLib.Length; i++)
+                for (int i = 0; i < otherLib.Count; i++)
                 {
                     message += otherLib[i] + ", ";
                 }
@@ -839,7 +894,7 @@ namespace ResumeEngineV2
                         //Check occurances of keywords in resume
                         if (whichLib == 0)
                         {
-                            for (int i = 0; i < energyLib.Length; i++)
+                            for (int i = 0; i < energyLib.Count; i++)
                             {
                                 //Resume contains the keyword
                                 if (newConvText.IndexOf(energyLib[i], StringComparison.OrdinalIgnoreCase) >= 0)
@@ -862,7 +917,7 @@ namespace ResumeEngineV2
                         }
                         else if (whichLib == 1)
                         {
-                            for (int i = 0; i < infrastructureLib.Length; i++)
+                            for (int i = 0; i < infrastructureLib.Count; i++)
                             {
                                 //Resume contains the keyword
                                 if (newConvText.IndexOf(infrastructureLib[i], StringComparison.OrdinalIgnoreCase) >= 0)
@@ -885,7 +940,7 @@ namespace ResumeEngineV2
                         }
                         else if (whichLib == 2)
                         {
-                            for (int i = 0; i < miningLib.Length; i++)
+                            for (int i = 0; i < miningLib.Count; i++)
                             {
                                 //Resume contains the keyword
                                 if (newConvText.IndexOf(miningLib[i], StringComparison.OrdinalIgnoreCase) >= 0)
@@ -908,7 +963,7 @@ namespace ResumeEngineV2
                         }
                         else if (whichLib == 3)
                         {
-                            for (int i = 0; i < concessionsLib.Length; i++)
+                            for (int i = 0; i < concessionsLib.Count; i++)
                             {
                                 //Resume contains the keyword
                                 if (newConvText.IndexOf(concessionsLib[i], StringComparison.OrdinalIgnoreCase) >= 0)
@@ -931,7 +986,7 @@ namespace ResumeEngineV2
                         }
                         else if (whichLib == 4)
                         {
-                            for (int i = 0; i < otherLib.Length; i++)
+                            for (int i = 0; i < otherLib.Count; i++)
                             {
                                 //Resume contains the keyword
                                 if (newConvText.IndexOf(otherLib[i], StringComparison.OrdinalIgnoreCase) >= 0)
@@ -953,7 +1008,7 @@ namespace ResumeEngineV2
                         {
                             if (whichLib2 == 0)
                             {
-                                for (int i = 0; i < energyLib.Length; i++)
+                                for (int i = 0; i < energyLib.Count; i++)
                                 {
                                     //Resume contains the keyword
                                     if (newConvText.IndexOf(energyLib[i], StringComparison.OrdinalIgnoreCase) >= 0)
@@ -976,7 +1031,7 @@ namespace ResumeEngineV2
                             }
                             if (whichLib2 == 1)
                             {
-                                for (int i = 0; i < infrastructureLib.Length; i++)
+                                for (int i = 0; i < infrastructureLib.Count; i++)
                                 {
                                     //Resume contains the keyword
                                     if (newConvText.IndexOf(infrastructureLib[i], StringComparison.OrdinalIgnoreCase) >= 0)
@@ -999,7 +1054,7 @@ namespace ResumeEngineV2
                             }
                             if (whichLib2 == 2)
                             {
-                                for (int i = 0; i < miningLib.Length; i++)
+                                for (int i = 0; i < miningLib.Count; i++)
                                 {
                                     //Resume contains the keyword
                                     if (newConvText.IndexOf(miningLib[i], StringComparison.OrdinalIgnoreCase) >= 0)
@@ -1022,7 +1077,7 @@ namespace ResumeEngineV2
                             }
                             if (whichLib2 == 3)
                             {
-                                for (int i = 0; i < concessionsLib.Length; i++)
+                                for (int i = 0; i < concessionsLib.Count; i++)
                                 {
                                     //Resume contains the keyword
                                     if (newConvText.IndexOf(concessionsLib[i], StringComparison.OrdinalIgnoreCase) >= 0)
@@ -1045,7 +1100,7 @@ namespace ResumeEngineV2
                             }
                             if (whichLib2 == 4)
                             {
-                                for (int i = 0; i < otherLib.Length; i++)
+                                for (int i = 0; i < otherLib.Count; i++)
                                 {
                                     //Resume contains the keyword
                                     if (newConvText.IndexOf(otherLib[i], StringComparison.OrdinalIgnoreCase) >= 0)
@@ -1143,6 +1198,7 @@ namespace ResumeEngineV2
                 {
                     WebRequest webRequest = WebRequest.Create("http://api.cortical.io:80/rest/compare/bulk?retina_name=en_associative");
                     webRequest.Method = "POST";
+                    //API key got from cortical.io/resources_apikey.html
                     webRequest.Headers["api-key"] = "bb355cc0-5873-11e8-9172-3ff24e827f76";
                     webRequest.ContentType = "application/json";
                     //Send request with postData string as the body
@@ -1177,6 +1233,7 @@ namespace ResumeEngineV2
                     {
                         webRequest = WebRequest.Create("http://api.cortical.io:80/rest/compare/bulk?retina_name=en_associative");
                         webRequest.Method = "POST";
+                        //API key got from cortical.io/resources_apikey.html
                         webRequest.Headers["api-key"] = "bb355cc0-5873-11e8-9172-3ff24e827f76";
                         webRequest.ContentType = "application/json";
                         //Send request with postData string as the body
